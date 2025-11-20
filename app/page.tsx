@@ -45,16 +45,17 @@ import Link from "next/link"
 
 // Sample data
 const metricsData = [
-  { label: "Total Workflows", value: "237", change: "+12%", trend: "up", icon: Workflow },
-  { label: "Success Rate", value: "98.7%", change: "+0.3%", trend: "up", icon: CheckCircle },
-  { label: "Avg Response", value: "38s", change: "-2.1s", trend: "up", icon: Clock },
-  { label: "Active Users", value: "1,423", change: "+8.2%", trend: "up", icon: Users },
+  { label: "Casos Activos", value: "237", change: "+12%", trend: "up", icon: Workflow },
+  { label: "Tasa de Éxito", value: "98.7%", change: "+0.3%", trend: "up", icon: CheckCircle },
+  { label: "Tiempo Promedio", value: "38s", change: "-2.1s", trend: "up", icon: Clock },
+  { label: "Clientes Activos", value: "1,423", change: "+8.2%", trend: "up", icon: Users },
 ]
 
 const workflowData = [
   {
     id: 6734,
-    name: "Product Catalog Sync",
+    name: "Revisión de Contratos Comerciales",
+    client: "Grupo Financiero XYZ",
     started: "22 Jun 2025, 10:48",
     duration: "45.2s",
     status: "running",
@@ -62,7 +63,8 @@ const workflowData = [
   },
   {
     id: 6733,
-    name: "Customer Webhook Listener",
+    name: "Análisis de Due Diligence",
+    client: "TechCorp S.A.",
     started: "22 Jun 2025, 10:12",
     duration: "30s",
     status: "success",
@@ -70,7 +72,8 @@ const workflowData = [
   },
   {
     id: 6732,
-    name: "Data Enrichment Pipeline",
+    name: "Actualización de Documentos Corporativos",
+    client: "Inmobiliaria del Centro",
     started: "22 Jun 2025, 09:45",
     duration: "2m 15s",
     status: "success",
@@ -78,7 +81,8 @@ const workflowData = [
   },
   {
     id: 6731,
-    name: "Analytics Refresh",
+    name: "Revisión de Compliance Regulatorio",
+    client: "Banco Nacional",
     started: "22 Jun 2025, 09:30",
     duration: "1m 8s",
     status: "success",
@@ -86,7 +90,8 @@ const workflowData = [
   },
   {
     id: 6730,
-    name: "Billing Reconciliation",
+    name: "Auditoría de Contratos Laborales",
+    client: "Corporación Industrial",
     started: "22 Jun 2025, 09:15",
     duration: "3m 22s",
     status: "success",
@@ -94,15 +99,17 @@ const workflowData = [
   },
   {
     id: 6729,
-    name: "Inventory Level Sync",
+    name: "Registro de Propiedad Intelectual",
+    client: "StartUp Innovación",
     started: "22 Jun 2025, 08:58",
     duration: "45s",
     status: "failed",
-    error: "HTTP Error 404: Not Found",
+    error: "Documento faltante: Poder notarial",
   },
   {
     id: 6728,
-    name: "KYC Data Update",
+    name: "Verificación de Cumplimiento Fiscal",
+    client: "Distribuidora Global",
     started: "22 Jun 2025, 08:45",
     duration: "1m 12s",
     status: "success",
@@ -110,7 +117,8 @@ const workflowData = [
   },
   {
     id: 6727,
-    name: "Monthly Log Archiver",
+    name: "Archivo de Expedientes Judiciales",
+    client: "Bufete Asociados",
     started: "22 Jun 2025, 08:30",
     duration: "4m 33s",
     status: "success",
@@ -119,10 +127,10 @@ const workflowData = [
 ]
 
 const chartData = [
-  { name: "Jan", sales: 4000, views: 2400, workflows: 240 },
+  { name: "Ene", sales: 4000, views: 2400, workflows: 240 },
   { name: "Feb", sales: 3000, views: 1398, workflows: 221 },
   { name: "Mar", sales: 2000, views: 9800, workflows: 229 },
-  { name: "Apr", sales: 2780, views: 3908, workflows: 200 },
+  { name: "Abr", sales: 2780, views: 3908, workflows: 200 },
   { name: "May", sales: 1890, views: 4800, workflows: 218 },
   { name: "Jun", sales: 2390, views: 3800, workflows: 250 },
   { name: "Jul", sales: 3490, views: 4300, workflows: 210 },
@@ -131,44 +139,44 @@ const chartData = [
 const teamMembers = [
   {
     name: "Clara Blackwood",
-    role: "Engineer",
+    role: "Abogado",
     status: "online",
     avatar: "/placeholder.svg?height=32&width=32",
-    availability: "On-call",
+    availability: "Disponible",
   },
   {
     name: "Michael Whitmore",
-    role: "Owner",
+    role: "Socio",
     status: "online",
     avatar: "/placeholder.svg?height=32&width=32",
-    availability: "Available",
+    availability: "Disponible",
   },
   {
     name: "Dennis Brightwood",
-    role: "Engineer",
+    role: "Abogado",
     status: "away",
     avatar: "/placeholder.svg?height=32&width=32",
-    availability: "Available in 2hrs",
+    availability: "Disponible en 2hrs",
   },
   {
     name: "Sarah Chen",
-    role: "Designer",
+    role: "Asistente Legal",
     status: "online",
     avatar: "/placeholder.svg?height=32&width=32",
-    availability: "In meeting",
+    availability: "En reunión",
   },
 ]
 
 const recentActivity = [
-  { workflow: "Product Catalog Sync", time: "2 minutes ago", status: "success", duration: "45s" },
-  { workflow: "Customer Webhook", time: "5 minutes ago", status: "success", duration: "30s" },
-  { workflow: "Data Enrichment", time: "12 minutes ago", status: "success", duration: "2m 15s" },
-  { workflow: "Analytics Refresh", time: "18 minutes ago", status: "success", duration: "1m 8s" },
-  { workflow: "Inventory Sync", time: "32 minutes ago", status: "failed", duration: "45s" },
+  { workflow: "Revisión de Contratos Comerciales", time: "hace 2 minutos", status: "success", duration: "45s" },
+  { workflow: "Análisis de Due Diligence", time: "hace 5 minutos", status: "success", duration: "30s" },
+  { workflow: "Actualización de Documentos", time: "hace 12 minutos", status: "success", duration: "2m 15s" },
+  { workflow: "Revisión de Compliance", time: "hace 18 minutos", status: "success", duration: "1m 8s" },
+  { workflow: "Registro de Propiedad Intelectual", time: "hace 32 minutos", status: "failed", duration: "45s" },
 ]
 
 export default function Dashboard() {
-  const [selectedPeriod, setSelectedPeriod] = useState("Last 30 days")
+  const [selectedPeriod, setSelectedPeriod] = useState("Últimos 30 días")
 
   return (
     <div className="min-h-screen bg-white">
@@ -179,10 +187,10 @@ export default function Dashboard() {
             <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
               <Workflow className="w-4 h-4 text-white" />
             </div>
-            <span className="font-semibold text-gray-900">Emma</span>
+            <span className="font-semibold text-gray-900">LegalTech</span>
           </div>
           <div className="text-sm text-gray-500">
-            <span>Dashboard</span> <span className="mx-1">/</span> <span>Overview</span>
+            <span>Dashboard</span> <span className="mx-1">/</span> <span>Resumen</span>
           </div>
         </div>
 
@@ -190,7 +198,7 @@ export default function Dashboard() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
-              placeholder="Search workflows, logs..."
+              placeholder="Buscar casos, documentos..."
               className="pl-10 w-80 bg-gray-50 border-gray-200 focus:bg-white"
             />
           </div>
@@ -210,11 +218,11 @@ export default function Dashboard() {
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>Alex Evans</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuItem>Perfil</DropdownMenuItem>
+              <DropdownMenuItem>Configuración</DropdownMenuItem>
+              <DropdownMenuItem>Soporte</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Sign out</DropdownMenuItem>
+              <DropdownMenuItem>Cerrar sesión</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -226,7 +234,7 @@ export default function Dashboard() {
           <div className="p-4">
             <div className="relative mb-6">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input placeholder="Search anything..." className="pl-10 bg-gray-50 border-gray-200 text-sm" />
+              <Input placeholder="Buscar..." className="pl-10 bg-gray-50 border-gray-200 text-sm" />
               <Button
                 size="icon"
                 variant="ghost"
@@ -242,42 +250,42 @@ export default function Dashboard() {
                 className="flex items-center w-full justify-start bg-purple-50 text-purple-700 hover:bg-purple-100 px-3 py-2 rounded-md text-sm font-medium"
               >
                 <Home className="w-4 h-4 mr-3" />
-                Overview
+                Resumen
               </Link>
               <Link
                 href="/workflows"
                 className="flex items-center w-full justify-start text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium"
               >
                 <Workflow className="w-4 h-4 mr-3" />
-                Workflows
+                Casos
               </Link>
               <Link
                 href="/analytics"
                 className="flex items-center w-full justify-start text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium"
               >
                 <BarChart3 className="w-4 h-4 mr-3" />
-                Analytics
+                Análisis
               </Link>
               <Link
                 href="/templates"
                 className="flex items-center w-full justify-start text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium"
               >
                 <Database className="w-4 h-4 mr-3" />
-                Templates
+                Plantillas
               </Link>
               <Link
                 href="/team"
                 className="flex items-center w-full justify-start text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium"
               >
                 <Users className="w-4 h-4 mr-3" />
-                Team
+                Equipo
               </Link>
               <Link
                 href="/settings"
                 className="flex items-center w-full justify-start text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium"
               >
                 <Settings className="w-4 h-4 mr-3" />
-                Settings
+                Configuración
               </Link>
             </nav>
           </div>
@@ -285,75 +293,161 @@ export default function Dashboard() {
 
         {/* Main Content */}
         <main className="flex-1 p-8 bg-gray-50">
-          {/* Quick Actions Bar */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h1 className="text-2xl font-semibold text-gray-900">Dashboard Overview</h1>
-                <p className="text-gray-600 mt-1">Monitor your workflows and system performance</p>
-              </div>
-              <div className="flex items-center gap-3">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="gap-2 bg-transparent">
-                      {selectedPeriod} <ChevronDown className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => setSelectedPeriod("Last 7 days")}>Last 7 days</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSelectedPeriod("Last 30 days")}>Last 30 days</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSelectedPeriod("Last 90 days")}>Last 90 days</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <Button className="bg-purple-600 hover:bg-purple-700">
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Workflow
-                </Button>
-              </div>
+          {/* Header Bar */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-900">Dashboard Legal</h1>
+              <p className="text-gray-600 mt-1">Monitorea tus casos y rendimiento del sistema</p>
             </div>
-
-            {/* Quick Action Cards */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
-              <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Plus className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900">New workflow</h3>
-                    <p className="text-sm text-gray-600">Create a new automation</p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                    <AlertTriangle className="w-6 h-6 text-red-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900">View breaches</h3>
-                    <p className="text-sm text-gray-600">Check failed workflows</p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <RefreshCw className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900">Re-run last failed</h3>
-                    <p className="text-sm text-gray-600">Retry failed executions</p>
-                  </div>
-                </div>
-              </Card>
+            <div className="flex items-center gap-3">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-2 bg-transparent">
+                    {selectedPeriod} <ChevronDown className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => setSelectedPeriod("Últimos 7 días")}>Últimos 7 días</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSelectedPeriod("Últimos 30 días")}>Últimos 30 días</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSelectedPeriod("Últimos 90 días")}>Últimos 90 días</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button className="bg-purple-600 hover:bg-purple-700">
+                <Plus className="w-4 h-4 mr-2" />
+                Nuevo Caso
+              </Button>
             </div>
           </div>
 
+          {/* Main Top Section: Recent Workflow Runs + Recent Activity */}
+          {/* Recent Workflow Runs (Left - 2/3 width) */}
+          <div className="col-span-2">
+            <Card className="border-gray-200">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-lg font-semibold">Casos Recientes</CardTitle>
+                    <CardDescription>Monitorea la ejecución de tus casos y su rendimiento</CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm">
+                      <Filter className="w-4 h-4 mr-2" />
+                      Filtrar
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Eye className="w-4 h-4 mr-2" />
+                      Ver Todos
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50">
+                      <TableHead className="font-medium text-gray-700">ID Caso</TableHead>
+                      <TableHead className="font-medium text-gray-700">Proceso Legal</TableHead>
+                      <TableHead className="font-medium text-gray-700">Cliente</TableHead>
+                      <TableHead className="font-medium text-gray-700">Iniciado</TableHead>
+                      <TableHead className="font-medium text-gray-700">Estado</TableHead>
+                      <TableHead className="font-medium text-gray-700">Observaciones</TableHead>
+                      <TableHead className="font-medium text-gray-700 w-12"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {workflowData.map((workflow) => (
+                      <TableRow key={workflow.id} className="hover:bg-gray-50">
+                        <TableCell className="font-mono text-sm">{workflow.id}</TableCell>
+                        <TableCell className="font-medium">{workflow.name}</TableCell>
+                        <TableCell className="text-gray-600">{workflow.client}</TableCell>
+                        <TableCell className="text-gray-600">{workflow.started}</TableCell>
+                        <TableCell>
+                          {workflow.status === "running" && (
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                              <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                              En Proceso
+                            </Badge>
+                          )}
+                          {workflow.status === "success" && (
+                            <Badge variant="secondary" className="bg-green-100 text-green-700">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Completado
+                            </Badge>
+                          )}
+                          {workflow.status === "failed" && (
+                            <Badge variant="secondary" className="bg-red-100 text-red-700">
+                              <XCircle className="w-3 h-3 mr-1" />
+                              Pendiente
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-gray-600 max-w-48 truncate">{workflow.error || "Ninguna"}</TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="w-8 h-8">
+                                <MoreHorizontal className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem>Ver Detalles</DropdownMenuItem>
+                              <DropdownMenuItem>Reabrir Caso</DropdownMenuItem>
+                              <DropdownMenuItem>Ver Documentos</DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="text-red-600">Archivar</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+          </div>
+
+          {/* Quick Action Cards */}
+          {/* <div className="grid grid-cols-3 gap-4 mb-8">
+            <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <Plus className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">Nuevo caso</h3>
+                  <p className="text-sm text-gray-600">Crear nueva gestión legal</p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                  <AlertTriangle className="w-6 h-6 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">Ver pendientes</h3>
+                  <p className="text-sm text-gray-600">Revisar casos pendientes</p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <RefreshCw className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">Reabrir último caso</h3>
+                  <p className="text-sm text-gray-600">Reintentar gestión fallida</p>
+                </div>
+              </div>
+            </Card>
+          </div> */}
+
           {/* Metrics Overview */}
-          <div className="grid grid-cols-4 gap-6 mb-8">
+          {/* <div className="grid grid-cols-4 gap-6 mb-8">
             {metricsData.map((metric, index) => (
               <Card key={index} className="border-gray-200">
                 <CardContent className="p-6">
@@ -377,24 +471,24 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             ))}
-          </div>
+          </div> */}
 
+          {/* Bottom Section: Performance Analytics + Sidebar */}
           <div className="grid grid-cols-3 gap-8">
-            {/* Main Content Area */}
-            <div className="col-span-2 space-y-8">
-              {/* Charts Section */}
+            {/* 
+            <div className="col-span-2">
               <Card className="border-gray-200">
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-lg font-semibold">Performance Analytics</CardTitle>
-                      <CardDescription>Workflow execution trends and system metrics</CardDescription>
+                      <CardTitle className="text-lg font-semibold">Análisis de Rendimiento</CardTitle>
+                      <CardDescription>Tendencias de ejecución de casos y métricas del sistema</CardDescription>
                     </div>
                     <Tabs defaultValue="workflows" className="w-auto">
                       <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="workflows">Workflows</TabsTrigger>
-                        <TabsTrigger value="sales">Sales</TabsTrigger>
-                        <TabsTrigger value="views">Views</TabsTrigger>
+                        <TabsTrigger value="workflows">Casos</TabsTrigger>
+                        <TabsTrigger value="sales">Ventas</TabsTrigger>
+                        <TabsTrigger value="views">Vistas</TabsTrigger>
                       </TabsList>
                     </Tabs>
                   </div>
@@ -435,154 +529,43 @@ export default function Dashboard() {
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Workflow Status Table */}
-              <Card className="border-gray-200">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-lg font-semibold">Recent Workflow Runs</CardTitle>
-                      <CardDescription>Monitor your workflow executions and performance</CardDescription>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
-                        <Filter className="w-4 h-4 mr-2" />
-                        Filter
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Eye className="w-4 h-4 mr-2" />
-                        View All
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-gray-50">
-                        <TableHead className="font-medium text-gray-700">Run ID</TableHead>
-                        <TableHead className="font-medium text-gray-700">Workflow</TableHead>
-                        <TableHead className="font-medium text-gray-700">Started</TableHead>
-                        <TableHead className="font-medium text-gray-700">Duration</TableHead>
-                        <TableHead className="font-medium text-gray-700">Status</TableHead>
-                        <TableHead className="font-medium text-gray-700">Error</TableHead>
-                        <TableHead className="font-medium text-gray-700 w-12"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {workflowData.map((workflow) => (
-                        <TableRow key={workflow.id} className="hover:bg-gray-50">
-                          <TableCell className="font-mono text-sm">{workflow.id}</TableCell>
-                          <TableCell className="font-medium">{workflow.name}</TableCell>
-                          <TableCell className="text-gray-600">{workflow.started}</TableCell>
-                          <TableCell className="text-gray-600">{workflow.duration}</TableCell>
-                          <TableCell>
-                            {workflow.status === "running" && (
-                              <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                                <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
-                                Running
-                              </Badge>
-                            )}
-                            {workflow.status === "success" && (
-                              <Badge variant="secondary" className="bg-green-100 text-green-700">
-                                <CheckCircle className="w-3 h-3 mr-1" />
-                                Success
-                              </Badge>
-                            )}
-                            {workflow.status === "failed" && (
-                              <Badge variant="secondary" className="bg-red-100 text-red-700">
-                                <XCircle className="w-3 h-3 mr-1" />
-                                Failed
-                              </Badge>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-gray-600 max-w-48 truncate">{workflow.error || "None"}</TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="w-8 h-8">
-                                  <MoreHorizontal className="w-4 h-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem>View Details</DropdownMenuItem>
-                                <DropdownMenuItem>Re-run</DropdownMenuItem>
-                                <DropdownMenuItem>View Logs</DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-red-600">Cancel</DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </div>
+            </div> */}
 
             {/* Right Sidebar */}
             <div className="space-y-6">
               {/* Account Balance */}
-              <Card className="border-gray-200">
+              {/* <Card className="border-gray-200">
                 <CardHeader className="pb-4">
-                  <CardTitle className="text-lg font-semibold">Account Balance</CardTitle>
+                  <CardTitle className="text-lg font-semibold">Balance de Cuenta</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-semibold text-gray-900 mb-4">$1,423.25</div>
                   <div className="space-y-3 mb-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Monthly Credits</span>
+                      <span className="text-sm text-gray-600">Créditos Mensuales</span>
                       <span className="text-sm font-medium">$500.00</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Usage This Month</span>
+                      <span className="text-sm text-gray-600">Uso Este Mes</span>
                       <span className="text-sm font-medium">$76.75</span>
                     </div>
                     <Progress value={15} className="h-2" />
                   </div>
                   <div className="flex gap-2">
                     <Button size="sm" className="flex-1">
-                      Add Credit
+                      Agregar Crédito
                     </Button>
                     <Button size="sm" variant="outline" className="flex-1 bg-transparent">
-                      Transfer
+                      Transferir
                     </Button>
                   </div>
                 </CardContent>
-              </Card>
-
-              {/* Recent Activity */}
-              <Card className="border-gray-200">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg font-semibold">Recent Activity</CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="space-y-0">
-                    {recentActivity.map((activity, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-3 p-4 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
-                      >
-                        <div
-                          className={`w-2 h-2 rounded-full ${activity.status === "success" ? "bg-green-500" : "bg-red-500"}`}
-                        ></div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm text-gray-900 truncate">{activity.workflow}</div>
-                          <div className="text-xs text-gray-600">
-                            {activity.time} • {activity.duration}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              </Card> */}
 
               {/* Team Status */}
-              <Card className="border-gray-200">
+              {/* <Card className="border-gray-200">
                 <CardHeader className="pb-4">
-                  <CardTitle className="text-lg font-semibold">Team Status</CardTitle>
+                  <CardTitle className="text-lg font-semibold">Estado del Equipo</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="space-y-0">
@@ -602,9 +585,8 @@ export default function Dashboard() {
                             </AvatarFallback>
                           </Avatar>
                           <div
-                            className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${
-                              member.status === "online" ? "bg-green-500" : "bg-gray-400"
-                            }`}
+                            className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${member.status === "online" ? "bg-green-500" : "bg-gray-400"
+                              }`}
                           ></div>
                         </div>
                         <div className="flex-1 min-w-0">
@@ -617,7 +599,37 @@ export default function Dashboard() {
                     ))}
                   </div>
                 </CardContent>
-              </Card>
+              </Card> */}
+
+
+              {/* Recent Activity (Right - 1/3 width) */}
+              {/* <div>
+                <Card className="border-gray-200">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg font-semibold">Actividad Reciente</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="space-y-0">
+                      {recentActivity.map((activity, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-3 p-4 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                        >
+                          <div
+                            className={`w-2 h-2 rounded-full ${activity.status === "success" ? "bg-green-500" : "bg-red-500"}`}
+                          ></div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm text-gray-900 truncate">{activity.workflow}</div>
+                            <div className="text-xs text-gray-600">
+                              {activity.time} • {activity.duration}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div> */}
             </div>
           </div>
         </main>
