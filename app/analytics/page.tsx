@@ -90,8 +90,9 @@ export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState("30d")
 
   return (
-    <DashboardLayout>
-      <div className="space-y-8">
+    <Card className="border-gray-200">
+
+      <div className="space-y-8 m-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -127,9 +128,8 @@ export default function AnalyticsPage() {
                     <kpi.icon className="w-5 h-5 text-gray-600" />
                   </div>
                   <div
-                    className={`flex items-center gap-1 text-sm ${
-                      kpi.trend === "up" ? "text-green-600" : "text-red-600"
-                    }`}
+                    className={`flex items-center gap-1 text-sm ${kpi.trend === "up" ? "text-green-600" : "text-red-600"
+                      }`}
                   >
                     {kpi.trend === "up" ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                     {kpi.change}
@@ -387,6 +387,6 @@ export default function AnalyticsPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </DashboardLayout>
+    </Card>
   )
 }

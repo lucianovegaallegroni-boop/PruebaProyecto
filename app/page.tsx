@@ -2,15 +2,7 @@
 
 import { useState } from "react"
 import {
-  Search,
-  Bell,
-  Home,
   Workflow,
-  BarChart3,
-  Settings,
-  AlertTriangle,
-  RefreshCw,
-  MoreHorizontal,
   Filter,
   TrendingUp,
   TrendingDown,
@@ -19,15 +11,15 @@ import {
   XCircle,
   ChevronDown,
   Plus,
-  ArrowRight,
-  Users,
   Eye,
-  Database,
+  Users,
+  MoreHorizontal,
+  AlertTriangle,
+  RefreshCw,
 } from "lucide-react"
 import { AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area } from "recharts"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -37,11 +29,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
-import Link from "next/link"
 
 // Sample data
 const metricsData = [
@@ -179,460 +169,344 @@ export default function Dashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState("Últimos 30 días")
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="h-16 border-b border-gray-200 bg-white px-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-              <Workflow className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-semibold text-gray-900">LegalTech</span>
-          </div>
-          <div className="text-sm text-gray-500">
-            <span>Dashboard</span> <span className="mx-1">/</span> <span>Resumen</span>
-          </div>
+    <div className="p-8">
+      {/* Header Bar */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">Dashboard Legal</h1>
+          <p className="text-gray-600 mt-1">Monitorea tus casos y rendimiento del sistema</p>
         </div>
-
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              placeholder="Buscar casos, documentos..."
-              className="pl-10 w-80 bg-gray-50 border-gray-200 focus:bg-white"
-            />
-          </div>
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="w-4 h-4" />
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-          </Button>
+        <div className="flex items-center gap-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Avatar className="w-8 h-8">
-                  <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                  <AvatarFallback>AE</AvatarFallback>
-                </Avatar>
+              <Button variant="outline" className="gap-2 bg-transparent">
+                {selectedPeriod} <ChevronDown className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>Alex Evans</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Perfil</DropdownMenuItem>
-              <DropdownMenuItem>Configuración</DropdownMenuItem>
-              <DropdownMenuItem>Soporte</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Cerrar sesión</DropdownMenuItem>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => setSelectedPeriod("Últimos 7 días")}>Últimos 7 días</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSelectedPeriod("Últimos 30 días")}>Últimos 30 días</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSelectedPeriod("Últimos 90 días")}>Últimos 90 días</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <Button className="bg-purple-600 hover:bg-purple-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Nuevo Caso
+          </Button>
         </div>
-      </header>
+      </div>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-60 border-r border-gray-200 bg-white h-[calc(100vh-4rem)] overflow-y-auto">
-          <div className="p-4">
-            <div className="relative mb-6">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input placeholder="Buscar..." className="pl-10 bg-gray-50 border-gray-200 text-sm" />
-              <Button
-                size="icon"
-                variant="ghost"
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 w-6 h-6"
-              >
-                <ArrowRight className="w-3 h-3" />
-              </Button>
+      {/* Main Top Section: Recent Workflow Runs + Recent Activity */}
+      {/* Recent Workflow Runs (Left - 2/3 width) */}
+      <div className="col-span-2">
+        <Card className="border-gray-200">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg font-semibold">Casos Recientes</CardTitle>
+                <CardDescription>Monitorea la ejecución de tus casos y su rendimiento</CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm">
+                  <Filter className="w-4 h-4 mr-2" />
+                  Filtrar
+                </Button>
+                <Button variant="outline" size="sm">
+                  <Eye className="w-4 h-4 mr-2" />
+                  Ver Todos
+                </Button>
+              </div>
             </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-50">
+                  <TableHead className="font-medium text-gray-700">ID Caso</TableHead>
+                  <TableHead className="font-medium text-gray-700">Proceso Legal</TableHead>
+                  <TableHead className="font-medium text-gray-700">Cliente</TableHead>
+                  <TableHead className="font-medium text-gray-700">Iniciado</TableHead>
+                  <TableHead className="font-medium text-gray-700">Estado</TableHead>
+                  <TableHead className="font-medium text-gray-700">Observaciones</TableHead>
+                  <TableHead className="font-medium text-gray-700 w-12"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {workflowData.map((workflow) => (
+                  <TableRow key={workflow.id} className="hover:bg-gray-50">
+                    <TableCell className="font-mono text-sm">{workflow.id}</TableCell>
+                    <TableCell className="font-medium">{workflow.name}</TableCell>
+                    <TableCell className="text-gray-600">{workflow.client}</TableCell>
+                    <TableCell className="text-gray-600">{workflow.started}</TableCell>
+                    <TableCell>
+                      {workflow.status === "running" && (
+                        <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                          En Proceso
+                        </Badge>
+                      )}
+                      {workflow.status === "success" && (
+                        <Badge variant="secondary" className="bg-green-100 text-green-700">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Completado
+                        </Badge>
+                      )}
+                      {workflow.status === "failed" && (
+                        <Badge variant="secondary" className="bg-red-100 text-red-700">
+                          <XCircle className="w-3 h-3 mr-1" />
+                          Pendiente
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-gray-600 max-w-48 truncate">{workflow.error || "Ninguna"}</TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="w-8 h-8">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>Ver Detalles</DropdownMenuItem>
+                          <DropdownMenuItem>Reabrir Caso</DropdownMenuItem>
+                          <DropdownMenuItem>Ver Documentos</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-red-600">Archivar</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
 
-            <nav className="space-y-1">
-              <Link
-                href="/"
-                className="flex items-center w-full justify-start bg-purple-50 text-purple-700 hover:bg-purple-100 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                <Home className="w-4 h-4 mr-3" />
-                Resumen
-              </Link>
-              <Link
-                href="/workflows"
-                className="flex items-center w-full justify-start text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                <Workflow className="w-4 h-4 mr-3" />
-                Casos
-              </Link>
-              <Link
-                href="/analytics"
-                className="flex items-center w-full justify-start text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                <BarChart3 className="w-4 h-4 mr-3" />
-                Análisis
-              </Link>
-              <Link
-                href="/templates"
-                className="flex items-center w-full justify-start text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                <Database className="w-4 h-4 mr-3" />
-                Plantillas
-              </Link>
-              <Link
-                href="/team"
-                className="flex items-center w-full justify-start text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                <Users className="w-4 h-4 mr-3" />
-                Equipo
-              </Link>
-              <Link
-                href="/settings"
-                className="flex items-center w-full justify-start text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                <Settings className="w-4 h-4 mr-3" />
-                Configuración
-              </Link>
-            </nav>
-          </div>
-        </aside>
+      </div>
 
-        {/* Main Content */}
-        <main className="flex-1 p-8 bg-gray-50">
-          {/* Header Bar */}
-          <div className="flex items-center justify-between mb-8">
+      {/* Quick Action Cards */}
+      <div className="grid grid-cols-3 gap-4 mb-8 mt-8">
+        <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <Plus className="w-6 h-6 text-green-600" />
+            </div>
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Dashboard Legal</h1>
-              <p className="text-gray-600 mt-1">Monitorea tus casos y rendimiento del sistema</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="gap-2 bg-transparent">
-                    {selectedPeriod} <ChevronDown className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => setSelectedPeriod("Últimos 7 días")}>Últimos 7 días</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSelectedPeriod("Últimos 30 días")}>Últimos 30 días</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSelectedPeriod("Últimos 90 días")}>Últimos 90 días</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button className="bg-purple-600 hover:bg-purple-700">
-                <Plus className="w-4 h-4 mr-2" />
-                Nuevo Caso
-              </Button>
+              <h3 className="font-medium text-gray-900">Nuevo caso</h3>
+              <p className="text-sm text-gray-600">Crear nueva gestión legal</p>
             </div>
           </div>
+        </Card>
 
-          {/* Main Top Section: Recent Workflow Runs + Recent Activity */}
-          {/* Recent Workflow Runs (Left - 2/3 width) */}
-          <div className="col-span-2">
+        <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+              <AlertTriangle className="w-6 h-6 text-red-600" />
+            </div>
+            <div>
+              <h3 className="font-medium text-gray-900">Ver pendientes</h3>
+              <p className="text-sm text-gray-600">Revisar casos pendientes</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <RefreshCw className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-medium text-gray-900">Reabrir último caso</h3>
+              <p className="text-sm text-gray-600">Reintentar gestión fallida</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Metrics Overview */}
+      <div className="grid grid-cols-4 gap-6 mb-8">
+        {metricsData.map((metric, index) => (
+          <Card key={index} className="border-gray-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <metric.icon className="w-5 h-5 text-gray-600" />
+                </div>
+                <div
+                  className={`flex items-center gap-1 text-sm ${metric.trend === "up" ? "text-green-600" : "text-red-600"}`}
+                >
+                  {metric.trend === "up" ? (
+                    <TrendingUp className="w-3 h-3" />
+                  ) : (
+                    <TrendingDown className="w-3 h-3" />
+                  )}
+                  {metric.change}
+                </div>
+              </div>
+              <div className="text-2xl font-semibold text-gray-900 mb-1">{metric.value}</div>
+              <div className="text-sm text-gray-600">{metric.label}</div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Bottom Section: Performance Analytics + Sidebar */}
+      <div className="grid grid-cols-3 gap-8 mt-8">
+        <div className="col-span-2">
+          <Card className="border-gray-200">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg font-semibold">Análisis de Rendimiento</CardTitle>
+                  <CardDescription>Tendencias de ejecución de casos y métricas del sistema</CardDescription>
+                </div>
+                <Tabs defaultValue="workflows" className="w-auto">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="workflows">Casos</TabsTrigger>
+                    <TabsTrigger value="sales">Ventas</TabsTrigger>
+                    <TabsTrigger value="views">Vistas</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                    <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
+                    <YAxis stroke="#6b7280" fontSize={12} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "white",
+                        border: "1px solid #e5e7eb",
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="workflows"
+                      stroke="#8b5cf6"
+                      fill="#8b5cf6"
+                      fillOpacity={0.1}
+                      strokeWidth={2}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="sales"
+                      stroke="#3b82f6"
+                      fill="#3b82f6"
+                      fillOpacity={0.1}
+                      strokeWidth={2}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Sidebar */}
+        <div className="space-y-6">
+          {/* Account Balance */}
+          <Card className="border-gray-200">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold">Balance de Cuenta</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-semibold text-gray-900 mb-4">$1,423.25</div>
+              <div className="space-y-3 mb-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Créditos Mensuales</span>
+                  <span className="text-sm font-medium">$500.00</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Uso Este Mes</span>
+                  <span className="text-sm font-medium">$76.75</span>
+                </div>
+                <Progress value={15} className="h-2" />
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" className="flex-1">
+                  Agregar Crédito
+                </Button>
+                <Button size="sm" variant="outline" className="flex-1 bg-transparent">
+                  Transferir
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Team Status */}
+          <Card className="border-gray-200">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold">Estado del Equipo</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="space-y-0">
+                {teamMembers.map((member, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-3 p-4 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                  >
+                    <div className="relative">
+                      <Avatar className="w-8 h-8">
+                        <AvatarImage src={member.avatar || "/placeholder.svg"} />
+                        <AvatarFallback>
+                          {member.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div
+                        className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${member.status === "online" ? "bg-green-500" : "bg-gray-400"
+                          }`}
+                      ></div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm text-gray-900">{member.name}</div>
+                      <div className="text-xs text-gray-600">
+                        {member.role} • {member.availability}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+
+          {/* Recent Activity (Right - 1/3 width) */}
+          <div>
             <Card className="border-gray-200">
               <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-lg font-semibold">Casos Recientes</CardTitle>
-                    <CardDescription>Monitorea la ejecución de tus casos y su rendimiento</CardDescription>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">
-                      <Filter className="w-4 h-4 mr-2" />
-                      Filtrar
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Eye className="w-4 h-4 mr-2" />
-                      Ver Todos
-                    </Button>
-                  </div>
-                </div>
+                <CardTitle className="text-lg font-semibold">Actividad Reciente</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-gray-50">
-                      <TableHead className="font-medium text-gray-700">ID Caso</TableHead>
-                      <TableHead className="font-medium text-gray-700">Proceso Legal</TableHead>
-                      <TableHead className="font-medium text-gray-700">Cliente</TableHead>
-                      <TableHead className="font-medium text-gray-700">Iniciado</TableHead>
-                      <TableHead className="font-medium text-gray-700">Estado</TableHead>
-                      <TableHead className="font-medium text-gray-700">Observaciones</TableHead>
-                      <TableHead className="font-medium text-gray-700 w-12"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {workflowData.map((workflow) => (
-                      <TableRow key={workflow.id} className="hover:bg-gray-50">
-                        <TableCell className="font-mono text-sm">{workflow.id}</TableCell>
-                        <TableCell className="font-medium">{workflow.name}</TableCell>
-                        <TableCell className="text-gray-600">{workflow.client}</TableCell>
-                        <TableCell className="text-gray-600">{workflow.started}</TableCell>
-                        <TableCell>
-                          {workflow.status === "running" && (
-                            <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                              <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
-                              En Proceso
-                            </Badge>
-                          )}
-                          {workflow.status === "success" && (
-                            <Badge variant="secondary" className="bg-green-100 text-green-700">
-                              <CheckCircle className="w-3 h-3 mr-1" />
-                              Completado
-                            </Badge>
-                          )}
-                          {workflow.status === "failed" && (
-                            <Badge variant="secondary" className="bg-red-100 text-red-700">
-                              <XCircle className="w-3 h-3 mr-1" />
-                              Pendiente
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-gray-600 max-w-48 truncate">{workflow.error || "Ninguna"}</TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="w-8 h-8">
-                                <MoreHorizontal className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem>Ver Detalles</DropdownMenuItem>
-                              <DropdownMenuItem>Reabrir Caso</DropdownMenuItem>
-                              <DropdownMenuItem>Ver Documentos</DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-red-600">Archivar</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-
-          </div>
-
-          {/* Quick Action Cards */}
-          {/* <div className="grid grid-cols-3 gap-4 mb-8">
-            <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <Plus className="w-6 h-6 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Nuevo caso</h3>
-                  <p className="text-sm text-gray-600">Crear nueva gestión legal</p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                  <AlertTriangle className="w-6 h-6 text-red-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Ver pendientes</h3>
-                  <p className="text-sm text-gray-600">Revisar casos pendientes</p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <RefreshCw className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Reabrir último caso</h3>
-                  <p className="text-sm text-gray-600">Reintentar gestión fallida</p>
-                </div>
-              </div>
-            </Card>
-          </div> */}
-
-          {/* Metrics Overview */}
-          {/* <div className="grid grid-cols-4 gap-6 mb-8">
-            {metricsData.map((metric, index) => (
-              <Card key={index} className="border-gray-200">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <metric.icon className="w-5 h-5 text-gray-600" />
-                    </div>
+                <div className="space-y-0">
+                  {recentActivity.map((activity, index) => (
                     <div
-                      className={`flex items-center gap-1 text-sm ${metric.trend === "up" ? "text-green-600" : "text-red-600"}`}
+                      key={index}
+                      className="flex items-center gap-3 p-4 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
                     >
-                      {metric.trend === "up" ? (
-                        <TrendingUp className="w-3 h-3" />
-                      ) : (
-                        <TrendingDown className="w-3 h-3" />
-                      )}
-                      {metric.change}
-                    </div>
-                  </div>
-                  <div className="text-2xl font-semibold text-gray-900 mb-1">{metric.value}</div>
-                  <div className="text-sm text-gray-600">{metric.label}</div>
-                </CardContent>
-              </Card>
-            ))}
-          </div> */}
-
-          {/* Bottom Section: Performance Analytics + Sidebar */}
-          <div className="grid grid-cols-3 gap-8">
-            {/* 
-            <div className="col-span-2">
-              <Card className="border-gray-200">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-lg font-semibold">Análisis de Rendimiento</CardTitle>
-                      <CardDescription>Tendencias de ejecución de casos y métricas del sistema</CardDescription>
-                    </div>
-                    <Tabs defaultValue="workflows" className="w-auto">
-                      <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="workflows">Casos</TabsTrigger>
-                        <TabsTrigger value="sales">Ventas</TabsTrigger>
-                        <TabsTrigger value="views">Vistas</TabsTrigger>
-                      </TabsList>
-                    </Tabs>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-80">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                        <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
-                        <YAxis stroke="#6b7280" fontSize={12} />
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: "white",
-                            border: "1px solid #e5e7eb",
-                            borderRadius: "8px",
-                            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                          }}
-                        />
-                        <Area
-                          type="monotone"
-                          dataKey="workflows"
-                          stroke="#8b5cf6"
-                          fill="#8b5cf6"
-                          fillOpacity={0.1}
-                          strokeWidth={2}
-                        />
-                        <Area
-                          type="monotone"
-                          dataKey="sales"
-                          stroke="#3b82f6"
-                          fill="#3b82f6"
-                          fillOpacity={0.1}
-                          strokeWidth={2}
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-            </div> */}
-
-            {/* Right Sidebar */}
-            <div className="space-y-6">
-              {/* Account Balance */}
-              {/* <Card className="border-gray-200">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg font-semibold">Balance de Cuenta</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-semibold text-gray-900 mb-4">$1,423.25</div>
-                  <div className="space-y-3 mb-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Créditos Mensuales</span>
-                      <span className="text-sm font-medium">$500.00</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Uso Este Mes</span>
-                      <span className="text-sm font-medium">$76.75</span>
-                    </div>
-                    <Progress value={15} className="h-2" />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" className="flex-1">
-                      Agregar Crédito
-                    </Button>
-                    <Button size="sm" variant="outline" className="flex-1 bg-transparent">
-                      Transferir
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card> */}
-
-              {/* Team Status */}
-              {/* <Card className="border-gray-200">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg font-semibold">Estado del Equipo</CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="space-y-0">
-                    {teamMembers.map((member, index) => (
                       <div
-                        key={index}
-                        className="flex items-center gap-3 p-4 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
-                      >
-                        <div className="relative">
-                          <Avatar className="w-8 h-8">
-                            <AvatarImage src={member.avatar || "/placeholder.svg"} />
-                            <AvatarFallback>
-                              {member.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div
-                            className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${member.status === "online" ? "bg-green-500" : "bg-gray-400"
-                              }`}
-                          ></div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm text-gray-900">{member.name}</div>
-                          <div className="text-xs text-gray-600">
-                            {member.role} • {member.availability}
-                          </div>
+                        className={`w-2 h-2 rounded-full ${activity.status === "success" ? "bg-green-500" : "bg-red-500"}`}
+                      ></div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm text-gray-900 truncate">{activity.workflow}</div>
+                        <div className="text-xs text-gray-600">
+                          {activity.time} • {activity.duration}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card> */}
-
-
-              {/* Recent Activity (Right - 1/3 width) */}
-              {/* <div>
-                <Card className="border-gray-200">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-lg font-semibold">Actividad Reciente</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="space-y-0">
-                      {recentActivity.map((activity, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center gap-3 p-4 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
-                        >
-                          <div
-                            className={`w-2 h-2 rounded-full ${activity.status === "success" ? "bg-green-500" : "bg-red-500"}`}
-                          ></div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium text-sm text-gray-900 truncate">{activity.workflow}</div>
-                            <div className="text-xs text-gray-600">
-                              {activity.time} • {activity.duration}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
                     </div>
-                  </CardContent>
-                </Card>
-              </div> */}
-            </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </main>
+        </div>
       </div>
     </div>
   )

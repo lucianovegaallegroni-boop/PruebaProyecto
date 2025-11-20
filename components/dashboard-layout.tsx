@@ -107,9 +107,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`flex items-center w-full justify-start px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive ? "bg-purple-50 text-purple-700 hover:bg-purple-100" : "text-gray-600 hover:bg-gray-50"
-                    }`}
+                    className={`flex items-center w-full justify-start px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive ? "bg-purple-50 text-purple-700 hover:bg-purple-100" : "text-gray-600 hover:bg-gray-50"
+                      }`}
                   >
                     <item.icon className="w-4 h-4 mr-3" />
                     {item.name}
