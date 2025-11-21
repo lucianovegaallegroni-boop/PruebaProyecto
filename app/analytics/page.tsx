@@ -19,7 +19,7 @@ import {
   Pie,
 } from "recharts"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -52,36 +52,36 @@ const errorAnalysis = [
 
 const kpiData = [
   {
-    title: "Total Executions",
+    title: "Ejecuciones Totales Registradas",
     value: "24,847",
     change: "+12.5%",
     trend: "up",
     icon: Activity,
-    description: "This month",
+    description: "Periodo actual",
   },
   {
-    title: "Success Rate",
+    title: "Tasa de Conformidad",
     value: "98.7%",
     change: "+0.3%",
     trend: "up",
     icon: CheckCircle,
-    description: "Last 30 days",
+    description: "Últimos 30 días",
   },
   {
-    title: "Avg Duration",
+    title: "Duración Promedio de Proceso",
     value: "38.2s",
     change: "-2.1s",
     trend: "up",
     icon: Clock,
-    description: "Per execution",
+    description: "Por ejecución",
   },
   {
-    title: "Error Rate",
+    title: "Tasa de Excepciones",
     value: "1.3%",
     change: "-0.2%",
     trend: "up",
     icon: XCircle,
-    description: "Last 30 days",
+    description: "Últimos 30 días",
   },
 ]
 
@@ -95,8 +95,8 @@ export default function AnalyticsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Analytics</h1>
-            <p className="text-gray-600 mt-1">Monitor performance and gain insights into your workflows</p>
+            <h1 className="text-2xl font-semibold text-gray-900">Auditoría de Rendimiento</h1>
+            <p className="text-gray-600 mt-1">Supervisión de ejecución y conformidad de procesos</p>
           </div>
           <div className="flex items-center gap-3">
             <Select value={timeRange} onValueChange={setTimeRange}>
@@ -104,15 +104,15 @@ export default function AnalyticsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="7d">Last 7 days</SelectItem>
-                <SelectItem value="30d">Last 30 days</SelectItem>
-                <SelectItem value="90d">Last 90 days</SelectItem>
-                <SelectItem value="1y">Last year</SelectItem>
+                <SelectItem value="7d">Últimos 7 días</SelectItem>
+                <SelectItem value="30d">Últimos 30 días</SelectItem>
+                <SelectItem value="90d">Últimos 90 días</SelectItem>
+                <SelectItem value="1y">Año Fiscal Actual</SelectItem>
               </SelectContent>
             </Select>
             <Button variant="outline" className="gap-2 bg-transparent">
               <Download className="w-4 h-4" />
-              Export
+              Generar Informe Legal
             </Button>
           </div>
         </div>
@@ -144,10 +144,10 @@ export default function AnalyticsPage() {
 
         <Tabs defaultValue="performance" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="performance">Performance</TabsTrigger>
-            <TabsTrigger value="workflows">Workflows</TabsTrigger>
-            <TabsTrigger value="errors">Error Analysis</TabsTrigger>
-            <TabsTrigger value="usage">Usage Patterns</TabsTrigger>
+            <TabsTrigger value="performance">Rendimiento Operativo</TabsTrigger>
+            <TabsTrigger value="workflows">Flujos de Trabajo</TabsTrigger>
+            <TabsTrigger value="errors">Análisis de Incidencias</TabsTrigger>
+            <TabsTrigger value="usage">Patrones de Uso</TabsTrigger>
           </TabsList>
 
           <TabsContent value="performance" className="space-y-6">
@@ -155,8 +155,8 @@ export default function AnalyticsPage() {
               {/* Execution Trends */}
               <Card className="border-gray-200">
                 <CardHeader>
-                  <CardTitle>Execution Trends</CardTitle>
-                  <CardDescription>Workflow executions over time</CardDescription>
+                  <CardTitle>Tendencias de Ejecución Contractual</CardTitle>
+                  <CardDescription>Registro temporal de ejecuciones</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="h-80">
@@ -185,13 +185,18 @@ export default function AnalyticsPage() {
                     </ResponsiveContainer>
                   </div>
                 </CardContent>
+                <CardFooter>
+                  <p className="text-xs text-gray-400">
+                    * Datos aproximados. Sujeto a términos y condiciones.
+                  </p>
+                </CardFooter>
               </Card>
 
               {/* Success vs Failed */}
               <Card className="border-gray-200">
                 <CardHeader>
-                  <CardTitle>Success vs Failed</CardTitle>
-                  <CardDescription>Execution outcomes comparison</CardDescription>
+                  <CardTitle>Comparativa de Éxito/Fallo</CardTitle>
+                  <CardDescription>Resultados de procesamiento</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="h-80">
@@ -208,20 +213,25 @@ export default function AnalyticsPage() {
                             boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                           }}
                         />
-                        <Bar dataKey="success" fill="#10b981" name="Success" />
-                        <Bar dataKey="failed" fill="#ef4444" name="Failed" />
+                        <Bar dataKey="success" fill="#10b981" name="Éxito" />
+                        <Bar dataKey="failed" fill="#ef4444" name="Fallo" />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
                 </CardContent>
+                <CardFooter>
+                  <p className="text-xs text-gray-400">
+                    * Datos aproximados. Sujeto a términos y condiciones.
+                  </p>
+                </CardFooter>
               </Card>
             </div>
 
             {/* Average Duration */}
             <Card className="border-gray-200">
               <CardHeader>
-                <CardTitle>Average Execution Duration</CardTitle>
-                <CardDescription>Performance trends over time</CardDescription>
+                <CardTitle>Tiempos de Procesamiento</CardTitle>
+                <CardDescription>Tendencias de rendimiento temporal</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-80">
@@ -249,6 +259,11 @@ export default function AnalyticsPage() {
                   </ResponsiveContainer>
                 </div>
               </CardContent>
+              <CardFooter>
+                <p className="text-xs text-gray-400">
+                  * Datos aproximados. Sujeto a términos y condiciones.
+                </p>
+              </CardFooter>
             </Card>
           </TabsContent>
 
@@ -257,8 +272,8 @@ export default function AnalyticsPage() {
               {/* Workflow Distribution */}
               <Card className="border-gray-200">
                 <CardHeader>
-                  <CardTitle>Workflow Distribution</CardTitle>
-                  <CardDescription>Execution breakdown by workflow type</CardDescription>
+                  <CardTitle>Distribución de Procesos</CardTitle>
+                  <CardDescription>Desglose por tipología de flujo</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="h-80">
@@ -281,13 +296,18 @@ export default function AnalyticsPage() {
                     </ResponsiveContainer>
                   </div>
                 </CardContent>
+                <CardFooter>
+                  <p className="text-xs text-gray-400">
+                    * Datos aproximados. Sujeto a términos y condiciones.
+                  </p>
+                </CardFooter>
               </Card>
 
               {/* Top Workflows */}
               <Card className="border-gray-200">
                 <CardHeader>
-                  <CardTitle>Top Performing Workflows</CardTitle>
-                  <CardDescription>Most executed workflows this month</CardDescription>
+                  <CardTitle>Flujos de Mayor Rendimiento</CardTitle>
+                  <CardDescription>Procesos con mayor volumen de ejecución</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -307,6 +327,11 @@ export default function AnalyticsPage() {
                     ))}
                   </div>
                 </CardContent>
+                <CardFooter>
+                  <p className="text-xs text-gray-400">
+                    * Datos aproximados. Sujeto a términos y condiciones.
+                  </p>
+                </CardFooter>
               </Card>
             </div>
           </TabsContent>
@@ -316,8 +341,8 @@ export default function AnalyticsPage() {
               {/* Error Types */}
               <Card className="border-gray-200">
                 <CardHeader>
-                  <CardTitle>Error Types</CardTitle>
-                  <CardDescription>Most common error categories</CardDescription>
+                  <CardTitle>Tipología de Incidencias</CardTitle>
+                  <CardDescription>Categorización de errores frecuentes</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -337,13 +362,18 @@ export default function AnalyticsPage() {
                     ))}
                   </div>
                 </CardContent>
+                <CardFooter>
+                  <p className="text-xs text-gray-400">
+                    * Datos aproximados. Sujeto a términos y condiciones.
+                  </p>
+                </CardFooter>
               </Card>
 
               {/* Error Trends */}
               <Card className="border-gray-200">
                 <CardHeader>
-                  <CardTitle>Error Trends</CardTitle>
-                  <CardDescription>Error rate over time</CardDescription>
+                  <CardTitle>Tendencia de Errores</CardTitle>
+                  <CardDescription>Tasa de incidencias en el tiempo</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="h-80">
@@ -371,6 +401,11 @@ export default function AnalyticsPage() {
                     </ResponsiveContainer>
                   </div>
                 </CardContent>
+                <CardFooter>
+                  <p className="text-xs text-gray-400">
+                    * Datos aproximados. Sujeto a términos y condiciones.
+                  </p>
+                </CardFooter>
               </Card>
             </div>
           </TabsContent>
@@ -380,11 +415,13 @@ export default function AnalyticsPage() {
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <BarChart3 className="w-8 h-8 text-gray-400" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Usage Patterns Coming Soon</h3>
-              <p className="text-gray-600">Advanced usage analytics and patterns will be available soon.</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Patrones de Uso (En Desarrollo)</h3>
+              <p className="text-gray-600">El análisis avanzado de uso estará disponible próximamente.</p>
             </div>
           </TabsContent>
         </Tabs>
+
+
       </div>
     </Card>
   )

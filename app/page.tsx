@@ -198,6 +198,71 @@ export default function Dashboard() {
       </div>
 
       {/* Main Top Section: Recent Workflow Runs + Recent Activity */}
+      {/* Quick Action Cards */}
+      <div className="grid grid-cols-3 gap-4 mb-8 mt-8">
+        <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <Plus className="w-6 h-6 text-green-600" />
+            </div>
+            <div>
+              <h3 className="font-medium text-gray-900">Nuevo caso</h3>
+              <p className="text-sm text-gray-600">Crear nueva gestión legal</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+              <AlertTriangle className="w-6 h-6 text-red-600" />
+            </div>
+            <div>
+              <h3 className="font-medium text-gray-900">Ver pendientes</h3>
+              <p className="text-sm text-gray-600">Revisar casos pendientes</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <RefreshCw className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-medium text-gray-900">Reabrir último caso</h3>
+              <p className="text-sm text-gray-600">Reintentar gestión fallida</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Metrics Overview */}
+      <div className="grid grid-cols-4 gap-6 mb-8">
+        {metricsData.map((metric, index) => (
+          <Card key={index} className="border-gray-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <metric.icon className="w-5 h-5 text-gray-600" />
+                </div>
+                <div
+                  className={`flex items-center gap-1 text-sm ${metric.trend === "up" ? "text-green-600" : "text-red-600"}`}
+                >
+                  {metric.trend === "up" ? (
+                    <TrendingUp className="w-3 h-3" />
+                  ) : (
+                    <TrendingDown className="w-3 h-3" />
+                  )}
+                  {metric.change}
+                </div>
+              </div>
+              <div className="text-2xl font-semibold text-gray-900 mb-1">{metric.value}</div>
+              <div className="text-sm text-gray-600">{metric.label}</div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
       {/* Recent Workflow Runs (Left - 2/3 width) */}
       <div className="col-span-2">
         <Card className="border-gray-200">
@@ -283,72 +348,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-      </div>
-
-      {/* Quick Action Cards */}
-      <div className="grid grid-cols-3 gap-4 mb-8 mt-8">
-        <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <Plus className="w-6 h-6 text-green-600" />
-            </div>
-            <div>
-              <h3 className="font-medium text-gray-900">Nuevo caso</h3>
-              <p className="text-sm text-gray-600">Crear nueva gestión legal</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
-            </div>
-            <div>
-              <h3 className="font-medium text-gray-900">Ver pendientes</h3>
-              <p className="text-sm text-gray-600">Revisar casos pendientes</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <RefreshCw className="w-6 h-6 text-blue-600" />
-            </div>
-            <div>
-              <h3 className="font-medium text-gray-900">Reabrir último caso</h3>
-              <p className="text-sm text-gray-600">Reintentar gestión fallida</p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Metrics Overview */}
-      <div className="grid grid-cols-4 gap-6 mb-8">
-        {metricsData.map((metric, index) => (
-          <Card key={index} className="border-gray-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <metric.icon className="w-5 h-5 text-gray-600" />
-                </div>
-                <div
-                  className={`flex items-center gap-1 text-sm ${metric.trend === "up" ? "text-green-600" : "text-red-600"}`}
-                >
-                  {metric.trend === "up" ? (
-                    <TrendingUp className="w-3 h-3" />
-                  ) : (
-                    <TrendingDown className="w-3 h-3" />
-                  )}
-                  {metric.change}
-                </div>
-              </div>
-              <div className="text-2xl font-semibold text-gray-900 mb-1">{metric.value}</div>
-              <div className="text-sm text-gray-600">{metric.label}</div>
-            </CardContent>
-          </Card>
-        ))}
       </div>
 
       {/* Bottom Section: Performance Analytics + Sidebar */}
