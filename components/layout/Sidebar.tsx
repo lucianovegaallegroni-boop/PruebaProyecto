@@ -18,12 +18,12 @@ import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
 const sidebarItems = [
-    { href: "/", label: "Resumen", icon: Home },
-    { href: "/workflows", label: "Casos", icon: Workflow },
+    { href: "/", label: "Casos", icon: Home },
+    { href: "/workflows", label: "Trabajos", icon: Workflow },
     { href: "/clientes", label: "Clientes", icon: UserCircle },
     { href: "/analytics", label: "Análisis", icon: BarChart3 },
     { href: "/templates", label: "Plantillas", icon: Database },
-    { href: "/team", label: "Equipo", icon: Users },
+    { href: "/equipo", label: "Equipo", icon: Users },
     { href: "/settings", label: "Configuración", icon: Settings },
 ]
 

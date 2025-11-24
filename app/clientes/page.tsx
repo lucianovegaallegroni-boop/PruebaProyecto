@@ -1,5 +1,7 @@
 "use client"
 
+import Link from "next/link"
+
 import { useState } from "react"
 import {
     Search,
@@ -380,7 +382,9 @@ export default function ClientesPage() {
                                                             <Edit className="w-4 h-4 mr-2" />
                                                             Editar
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem>Ver Detalles</DropdownMenuItem>
+                                                        <DropdownMenuItem asChild>
+                                                            <Link href={`/clientes/${cliente.id}`}>Ver Perfil</Link>
+                                                        </DropdownMenuItem>
                                                         <DropdownMenuItem>Ver Casos</DropdownMenuItem>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem

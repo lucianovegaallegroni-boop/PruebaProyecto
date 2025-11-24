@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { motion } from "framer-motion"
 import {
   Workflow,
   Filter,
@@ -32,6 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
+import { AddCaseModal } from "@/components/AddCaseModal"
 
 // Sample data
 const metricsData = [
@@ -168,6 +170,7 @@ const recentActivity = [
 
 export default function Dashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState("Últimos 30 días")
+  const [activeTab, setActiveTab] = useState("workflows")
 
   return (
     <div className="p-8">
@@ -190,10 +193,7 @@ export default function Dashboard() {
               <DropdownMenuItem onClick={() => setSelectedPeriod("Últimos 90 días")}>Últimos 90 días</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button className="bg-purple-600 hover:bg-purple-700">
-            <Plus className="w-4 h-4 mr-2" />
-            Nuevo Caso
-          </Button>
+          <AddCaseModal />
         </div>
       </div>
 
@@ -264,249 +264,187 @@ export default function Dashboard() {
         ))}
       </div>
       {/* Recent Workflow Runs (Left - 2/3 width) */}
-      <div className="col-span-2">
-        <Card className="border-gray-200">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-lg font-semibold">Casos Recientes</CardTitle>
-                <CardDescription>Monitorea la ejecución de tus casos y su rendimiento</CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm">
-                  <Filter className="w-4 h-4 mr-2" />
-                  Filtrar
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Eye className="w-4 h-4 mr-2" />
-                  Ver Todos
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-gray-50">
-                  <TableHead className="font-medium text-gray-700">ID Caso</TableHead>
-                  <TableHead className="font-medium text-gray-700">Proceso Legal</TableHead>
-                  <TableHead className="font-medium text-gray-700">Cliente</TableHead>
-                  <TableHead className="font-medium text-gray-700">Iniciado</TableHead>
-                  <TableHead className="font-medium text-gray-700">Estado</TableHead>
-                  <TableHead className="font-medium text-gray-700">Observaciones</TableHead>
-                  <TableHead className="font-medium text-gray-700 w-12"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {workflowData.map((workflow) => (
-                  <TableRow key={workflow.id} className="hover:bg-gray-50">
-                    <TableCell className="font-mono text-sm">{workflow.id}</TableCell>
-                    <TableCell className="font-medium">{workflow.name}</TableCell>
-                    <TableCell className="text-gray-600">{workflow.client}</TableCell>
-                    <TableCell className="text-gray-600">{workflow.started}</TableCell>
-                    <TableCell>
-                      {workflow.status === "running" && (
-                        <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
-                          En Proceso
-                        </Badge>
-                      )}
-                      {workflow.status === "success" && (
-                        <Badge variant="secondary" className="bg-green-100 text-green-700">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Completado
-                        </Badge>
-                      )}
-                      {workflow.status === "failed" && (
-                        <Badge variant="secondary" className="bg-red-100 text-red-700">
-                          <XCircle className="w-3 h-3 mr-1" />
-                          Pendiente
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-gray-600 max-w-48 truncate">{workflow.error || "Ninguna"}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="w-8 h-8">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>Ver Detalles</DropdownMenuItem>
-                          <DropdownMenuItem>Reabrir Caso</DropdownMenuItem>
-                          <DropdownMenuItem>Ver Documentos</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-red-600">Archivar</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-
-      </div>
-
-      {/* Bottom Section: Performance Analytics + Sidebar */}
-      <div className="grid grid-cols-3 gap-8 mt-8">
+      <div className="grid grid-cols-1 gap-8 mt-8">
         <div className="col-span-2">
           <Card className="border-gray-200">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-lg font-semibold">Análisis de Rendimiento</CardTitle>
-                  <CardDescription>Tendencias de ejecución de casos y métricas del sistema</CardDescription>
+                  <CardTitle className="text-lg font-semibold">Casos Recientes</CardTitle>
+                  <CardDescription>Monitorea la ejecución de tus casos y su rendimiento</CardDescription>
                 </div>
-                <Tabs defaultValue="workflows" className="w-auto">
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="workflows">Casos</TabsTrigger>
-                    <TabsTrigger value="sales">Ventas</TabsTrigger>
-                    <TabsTrigger value="views">Vistas</TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                    <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
-                    <YAxis stroke="#6b7280" fontSize={12} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "white",
-                        border: "1px solid #e5e7eb",
-                        borderRadius: "8px",
-                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="workflows"
-                      stroke="#8b5cf6"
-                      fill="#8b5cf6"
-                      fillOpacity={0.1}
-                      strokeWidth={2}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="sales"
-                      stroke="#3b82f6"
-                      fill="#3b82f6"
-                      fillOpacity={0.1}
-                      strokeWidth={2}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Right Sidebar */}
-        <div className="space-y-6">
-          {/* Account Balance */}
-          <Card className="border-gray-200">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-semibold">Balance de Cuenta</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-semibold text-gray-900 mb-4">$1,423.25</div>
-              <div className="space-y-3 mb-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Créditos Mensuales</span>
-                  <span className="text-sm font-medium">$500.00</span>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm">
+                    <Filter className="w-4 h-4 mr-2" />
+                    Filtrar
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Eye className="w-4 h-4 mr-2" />
+                    Ver Todos
+                  </Button>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Uso Este Mes</span>
-                  <span className="text-sm font-medium">$76.75</span>
-                </div>
-                <Progress value={15} className="h-2" />
               </div>
-              <div className="flex gap-2">
-                <Button size="sm" className="flex-1">
-                  Agregar Crédito
-                </Button>
-                <Button size="sm" variant="outline" className="flex-1 bg-transparent">
-                  Transferir
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Team Status */}
-          <Card className="border-gray-200">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-semibold">Estado del Equipo</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="space-y-0">
-                {teamMembers.map((member, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-3 p-4 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
-                  >
-                    <div className="relative">
-                      <Avatar className="w-8 h-8">
-                        <AvatarImage src={member.avatar || "/placeholder.svg"} />
-                        <AvatarFallback>
-                          {member.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div
-                        className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${member.status === "online" ? "bg-green-500" : "bg-gray-400"
-                          }`}
-                      ></div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm text-gray-900">{member.name}</div>
-                      <div className="text-xs text-gray-600">
-                        {member.role} • {member.availability}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50">
+                    <TableHead className="font-medium text-gray-700">ID Caso</TableHead>
+                    <TableHead className="font-medium text-gray-700">Proceso Legal</TableHead>
+                    <TableHead className="font-medium text-gray-700">Cliente</TableHead>
+                    <TableHead className="font-medium text-gray-700">Iniciado</TableHead>
+                    <TableHead className="font-medium text-gray-700">Estado</TableHead>
+                    <TableHead className="font-medium text-gray-700">Observaciones</TableHead>
+                    <TableHead className="font-medium text-gray-700 w-12"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {workflowData.map((workflow) => (
+                    <TableRow key={workflow.id} className="hover:bg-gray-50">
+                      <TableCell className="font-mono text-sm">{workflow.id}</TableCell>
+                      <TableCell className="font-medium">{workflow.name}</TableCell>
+                      <TableCell className="text-gray-600">{workflow.client}</TableCell>
+                      <TableCell className="text-gray-600">{workflow.started}</TableCell>
+                      <TableCell>
+                        {workflow.status === "running" && (
+                          <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                            En Proceso
+                          </Badge>
+                        )}
+                        {workflow.status === "success" && (
+                          <Badge variant="secondary" className="bg-green-100 text-green-700">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Completado
+                          </Badge>
+                        )}
+                        {workflow.status === "failed" && (
+                          <Badge variant="secondary" className="bg-red-100 text-red-700">
+                            <XCircle className="w-3 h-3 mr-1" />
+                            Pendiente
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-gray-600 max-w-48 truncate">{workflow.error || "Ninguna"}</TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="w-8 h-8">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <a href={`/casos/${workflow.id}`}>Ver Detalles</a>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>Reabrir Caso</DropdownMenuItem>
+                            <DropdownMenuItem>Ver Documentos</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-red-600">Archivar</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
-
-
-          {/* Recent Activity (Right - 1/3 width) */}
-          <div>
-            <Card className="border-gray-200">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold">Actividad Reciente</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="space-y-0">
-                  {recentActivity.map((activity, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-3 p-4 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
-                    >
-                      <div
-                        className={`w-2 h-2 rounded-full ${activity.status === "success" ? "bg-green-500" : "bg-red-500"}`}
-                      ></div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm text-gray-900 truncate">{activity.workflow}</div>
-                        <div className="text-xs text-gray-600">
-                          {activity.time} • {activity.duration}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </div>
+
+        {/* Right Sidebar - Commented Out */}
+      </div>
+
+      {/* Bottom Section: Performance Analytics */}
+      <div className="grid grid-cols-1 gap-8 mt-8">
+        <Card className="border-gray-200">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg font-semibold">Análisis de Rendimiento</CardTitle>
+                <CardDescription>Tendencias de ejecución de casos y métricas del sistema</CardDescription>
+              </div>
+              <Tabs defaultValue="workflows" value={activeTab} onValueChange={setActiveTab} className="w-auto">
+                <TabsList className="grid w-full grid-cols-3 bg-gray-100/20 p-1 rounded-lg">
+                  <TabsTrigger
+                    value="workflows"
+                    className="relative data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-none"
+                  >
+                    <span className="relative z-10">Casos</span>
+                    {activeTab === "workflows" && (
+                      <motion.div
+                        layoutId="active-tab-dashboard"
+                        className="absolute inset-0 bg-white rounded-md shadow-sm"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="sales"
+                    className="relative data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-none"
+                  >
+                    <span className="relative z-10">Ventas</span>
+                    {activeTab === "sales" && (
+                      <motion.div
+                        layoutId="active-tab-dashboard"
+                        className="absolute inset-0 bg-white rounded-md shadow-sm"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="views"
+                    className="relative data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-none"
+                  >
+                    <span className="relative z-10">Vistas</span>
+                    {activeTab === "views" && (
+                      <motion.div
+                        layoutId="active-tab-dashboard"
+                        className="absolute inset-0 bg-white rounded-md shadow-sm"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                  <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
+                  <YAxis stroke="#6b7280" fontSize={12} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "white",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="workflows"
+                    stroke="#8b5cf6"
+                    fill="#8b5cf6"
+                    fillOpacity={0.1}
+                    strokeWidth={2}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="sales"
+                    stroke="#3b82f6"
+                    fill="#3b82f6"
+                    fillOpacity={0.1}
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
