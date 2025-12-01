@@ -119,7 +119,39 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+
+  /* Ensure body doesn't have horizontal scroll */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Make tables horizontally scrollable */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  /* Ensure cards take full width */
+  .card {
+    width: 100%;
+  }
+
+  /* Add padding to content to account for fixed mobile nav */
+  main {
+    padding-top: 60px;
+  }
+
+  /* Ensure header search is responsive */
+  header input {
+    max-width: 150px;
   }
 }

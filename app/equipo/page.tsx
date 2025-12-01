@@ -54,7 +54,7 @@ export default function TeamListPage() {
                     Acciones
                 </Button>
             </div>
-            <Table>
+            <div className="table-responsive"><Table>
                 <TableHeader>
                     <TableRow className="bg-gray-50">
                         <TableHead>ID</TableHead>
@@ -103,7 +103,7 @@ export default function TeamListPage() {
                         </TableRow>
                     ))}
                 </TableBody>
-            </Table>
+            </Table></div>
         </div>
     );
 }
