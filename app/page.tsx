@@ -1,451 +1,455 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import {
-  Workflow,
   Filter,
-  TrendingUp,
-  TrendingDown,
-  Clock,
-  CheckCircle,
-  XCircle,
-  ChevronDown,
-  Plus,
   Eye,
+  Loader2,
+  Briefcase,
   Users,
-  MoreHorizontal,
-  AlertTriangle,
-  RefreshCw,
+  Clock,
+  Scale,
 } from "lucide-react"
-import { AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area } from "recharts"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Progress } from "@/components/ui/progress"
 import { AddCaseModal } from "@/components/AddCaseModal"
 
-// Sample data
-const metricsData = [
-  { label: "Casos Activos", value: "237", change: "+12%", trend: "up", icon: Workflow },
-  { label: "Tasa de Éxito", value: "98.7%", change: "+0.3%", trend: "up", icon: CheckCircle },
-  { label: "Tiempo Promedio", value: "38s", change: "-2.1s", trend: "up", icon: Clock },
-  { label: "Clientes Activos", value: "1,423", change: "+8.2%", trend: "up", icon: Users },
-]
+// Interface para los casos de la API
+interface CaseFromAPI {
+  id: number;
+  title: string;
+  description: string | null;
+  client_name: string;
+  contact_person: string | null;
+  client_email: string | null;
+  client_phone: string | null;
+  practice_area: string | null;
+  case_type: string | null;
+  opponent: string | null;
+  opponent_lawyer: string | null;
+  file_number: string | null;
+  court: string | null;
+  jurisdiction: string | null;
+  judge: string | null;
+  status: string | null;
+  next_hearing: string | null;
+  amount: number | null;
+  fees: string | null;
+  responsible_lawyer: string | null;
+  assistants: string | null;
+  strategy: string | null;
+  risks: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  observaciones: string | null;
+}
 
-const workflowData = [
-  {
-    id: 6734,
-    name: "Revisión de Contratos Comerciales",
-    client: "Grupo Financiero XYZ",
-    started: "22 Jun 2025, 10:48",
-    duration: "45.2s",
-    status: "running",
-    error: null,
-  },
-  {
-    id: 6733,
-    name: "Análisis de Due Diligence",
-    client: "TechCorp S.A.",
-    started: "22 Jun 2025, 10:12",
-    duration: "30s",
-    status: "success",
-    error: null,
-  },
-  {
-    id: 6732,
-    name: "Actualización de Documentos Corporativos",
-    client: "Inmobiliaria del Centro",
-    started: "22 Jun 2025, 09:45",
-    duration: "2m 15s",
-    status: "success",
-    error: null,
-  },
-  {
-    id: 6731,
-    name: "Revisión de Compliance Regulatorio",
-    client: "Banco Nacional",
-    started: "22 Jun 2025, 09:30",
-    duration: "1m 8s",
-    status: "success",
-    error: null,
-  },
-  {
-    id: 6730,
-    name: "Auditoría de Contratos Laborales",
-    client: "Corporación Industrial",
-    started: "22 Jun 2025, 09:15",
-    duration: "3m 22s",
-    status: "success",
-    error: null,
-  },
-  {
-    id: 6729,
-    name: "Registro de Propiedad Intelectual",
-    client: "StartUp Innovación",
-    started: "22 Jun 2025, 08:58",
-    duration: "45s",
-    status: "failed",
-    error: "Documento faltante: Poder notarial",
-  },
-  {
-    id: 6728,
-    name: "Verificación de Cumplimiento Fiscal",
-    client: "Distribuidora Global",
-    started: "22 Jun 2025, 08:45",
-    duration: "1m 12s",
-    status: "success",
-    error: null,
-  },
-  {
-    id: 6727,
-    name: "Archivo de Expedientes Judiciales",
-    client: "Bufete Asociados",
-    started: "22 Jun 2025, 08:30",
-    duration: "4m 33s",
-    status: "success",
-    error: null,
-  },
-
-]
-
-const chartData = [
-  { name: "Ene", sales: 4000, views: 2400, workflows: 240 },
-  { name: "Feb", sales: 3000, views: 1398, workflows: 221 },
-  { name: "Mar", sales: 2000, views: 9800, workflows: 229 },
-  { name: "Abr", sales: 2780, views: 3908, workflows: 200 },
-  { name: "May", sales: 1890, views: 4800, workflows: 218 },
-  { name: "Jun", sales: 2390, views: 3800, workflows: 250 },
-  { name: "Jul", sales: 3490, views: 4300, workflows: 210 },
-]
-
-const teamMembers = [
-  {
-    name: "Clara Blackwood",
-    role: "Abogado",
-    status: "online",
-    avatar: "/placeholder.svg?height=32&width=32",
-    availability: "Disponible",
-  },
-  {
-    name: "Michael Whitmore",
-    role: "Socio",
-    status: "online",
-    avatar: "/placeholder.svg?height=32&width=32",
-    availability: "Disponible",
-  },
-  {
-    name: "Dennis Brightwood",
-    role: "Abogado",
-    status: "away",
-    avatar: "/placeholder.svg?height=32&width=32",
-    availability: "Disponible en 2hrs",
-  },
-  {
-    name: "Sarah Chen",
-    role: "Asistente Legal",
-    status: "online",
-    avatar: "/placeholder.svg?height=32&width=32",
-    availability: "En reunión",
-  },
-]
-
-const recentActivity = [
-  { workflow: "Revisión de Contratos Comerciales", time: "hace 2 minutos", status: "success", duration: "45s" },
-  { workflow: "Análisis de Due Diligence", time: "hace 5 minutos", status: "success", duration: "30s" },
-  { workflow: "Actualización de Documentos", time: "hace 12 minutos", status: "success", duration: "2m 15s" },
-  { workflow: "Revisión de Compliance", time: "hace 18 minutos", status: "success", duration: "1m 8s" },
-  { workflow: "Registro de Propiedad Intelectual", time: "hace 32 minutos", status: "failed", duration: "45s" },
-]
+interface Stats {
+  totalCasos: number;
+  casosIniciados: number;
+  casosEnPruebas: number;
+  casosFinalizados: number;
+  totalClientes: number;
+}
 
 export default function Dashboard() {
-  const [selectedPeriod, setSelectedPeriod] = useState("Últimos 30 días")
-  const [activeTab, setActiveTab] = useState("workflows")
+  const router = useRouter()
+  const [casos, setCasos] = useState<CaseFromAPI[]>([])
+  const [loadingCases, setLoadingCases] = useState(true)
+  const [loadingStats, setLoadingStats] = useState(true)
+  const [errorCases, setErrorCases] = useState<string | null>(null)
+  const [stats, setStats] = useState<Stats>({
+    totalCasos: 0,
+    casosIniciados: 0,
+    casosEnPruebas: 0,
+    casosFinalizados: 0,
+    totalClientes: 0,
+  })
+
+  // Función para cargar casos desde la API
+  const fetchCasos = async () => {
+    setLoadingCases(true)
+    setErrorCases(null)
+    try {
+      const response = await fetch("/api/casos")
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || "Error al cargar los casos")
+      }
+
+      const casosData = result.data || []
+      setCasos(casosData)
+
+      // Calcular estadísticas
+      const iniciados = casosData.filter((c: CaseFromAPI) => c.status === "inicio").length
+      const enPruebas = casosData.filter((c: CaseFromAPI) => c.status === "pruebas").length
+      const finalizados = casosData.filter((c: CaseFromAPI) =>
+        c.status === "sentencia" || c.status === "ejecucion"
+      ).length
+
+      setStats(prev => ({
+        ...prev,
+        totalCasos: casosData.length,
+        casosIniciados: iniciados,
+        casosEnPruebas: enPruebas,
+        casosFinalizados: finalizados,
+      }))
+    } catch (error) {
+      console.error("Error fetching cases:", error)
+      setErrorCases(error instanceof Error ? error.message : "Error desconocido")
+    } finally {
+      setLoadingCases(false)
+    }
+  }
+
+  // Cargar clientes
+  const fetchClientes = async () => {
+    try {
+      const response = await fetch("/api/clientes")
+      const result = await response.json()
+      if (response.ok) {
+        setStats(prev => ({
+          ...prev,
+          totalClientes: (result.data || []).length,
+        }))
+      }
+    } catch (error) {
+      console.error("Error fetching clientes:", error)
+    }
+  }
+
+  // Cargar todos los datos
+  const loadAllData = async () => {
+    setLoadingStats(true)
+    await Promise.all([fetchCasos(), fetchClientes()])
+    setLoadingStats(false)
+  }
+
+  // Cargar datos al montar el componente
+  useEffect(() => {
+    loadAllData()
+  }, [])
+
+  // Función para formatear la fecha
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "Sin fecha"
+    const date = dateString.includes("T")
+      ? new Date(dateString)
+      : new Date(dateString + "T12:00:00")
+    return date.toLocaleDateString("es-MX", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
+  }
+
+  // Función para mapear estados
+  const getStatusDisplay = (status: string | null) => {
+    const statusMap: Record<string, { label: string; color: string }> = {
+      "inicio": { label: "Inicio", color: "bg-blue-100 text-blue-700" },
+      "pruebas": { label: "Etapa Probatoria", color: "bg-yellow-100 text-yellow-700" },
+      "alegatos": { label: "Alegatos", color: "bg-orange-100 text-orange-700" },
+      "sentencia": { label: "Sentencia", color: "bg-green-100 text-green-700" },
+      "ejecucion": { label: "Ejecución", color: "bg-purple-100 text-purple-700" },
+      "suspendido": { label: "Suspendido", color: "bg-red-100 text-red-700" },
+      "En Proceso": { label: "En Proceso", color: "bg-blue-100 text-blue-700" },
+      "Completado": { label: "Completado", color: "bg-green-100 text-green-700" },
+    }
+    return statusMap[status || ""] || { label: status || "Sin estado", color: "bg-gray-100 text-gray-700" }
+  }
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       {/* Header Bar */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 md:mb-8">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Dashboard Legal</h1>
-          <p className="text-gray-600 mt-1">Monitorea tus casos y rendimiento del sistema</p>
+          <h1 className="text-xl md:text-2xl font-semibold text-gray-900">Dashboard</h1>
+          <p className="text-sm md:text-base text-gray-600 mt-1">Resumen general del sistema</p>
         </div>
         <div className="flex items-center gap-3">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="gap-2 bg-transparent">
-                {selectedPeriod} <ChevronDown className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setSelectedPeriod("Últimos 7 días")}>Últimos 7 días</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSelectedPeriod("Últimos 30 días")}>Últimos 30 días</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSelectedPeriod("Últimos 90 días")}>Últimos 90 días</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <AddCaseModal />
+          <AddCaseModal onCaseCreated={fetchCasos} />
         </div>
       </div>
 
-      {/* Main Top Section: Recent Workflow Runs + Recent Activity */}
-      {/* Quick Action Cards */}
-      <div className="grid grid-cols-3 gap-4 mb-8 mt-8">
-        <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <Plus className="w-6 h-6 text-green-600" />
-            </div>
-            <div>
-              <h3 className="font-medium text-gray-900">Nuevo caso</h3>
-              <p className="text-sm text-gray-600">Crear nueva gestión legal</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
-            </div>
-            <div>
-              <h3 className="font-medium text-gray-900">Ver pendientes</h3>
-              <p className="text-sm text-gray-600">Revisar casos pendientes</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6 hover:shadow-md transition-shadow cursor-pointer border-gray-200">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <RefreshCw className="w-6 h-6 text-blue-600" />
-            </div>
-            <div>
-              <h3 className="font-medium text-gray-900">Reabrir último caso</h3>
-              <p className="text-sm text-gray-600">Reintentar gestión fallida</p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Metrics Overview */}
-      <div className="grid grid-cols-4 gap-6 mb-8">
-        {metricsData.map((metric, index) => (
-          <Card key={index} className="border-gray-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <metric.icon className="w-5 h-5 text-gray-600" />
-                </div>
-                <div
-                  className={`flex items-center gap-1 text-sm ${metric.trend === "up" ? "text-green-600" : "text-red-600"}`}
-                >
-                  {metric.trend === "up" ? (
-                    <TrendingUp className="w-3 h-3" />
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
+        {/* Total Casos */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="border-gray-200">
+            <CardContent className="p-4 md:p-6">
+              <div className="flex items-center gap-3 md:gap-4">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  {loadingStats ? (
+                    <Loader2 className="w-5 h-5 md:w-6 md:h-6 text-purple-400 animate-spin" />
                   ) : (
-                    <TrendingDown className="w-3 h-3" />
+                    <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
                   )}
-                  {metric.change}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs md:text-sm text-gray-500 truncate">Total Casos</p>
+                  {loadingStats ? (
+                    <div className="h-8 w-12 bg-gray-200 rounded animate-pulse mt-1"></div>
+                  ) : (
+                    <p className="text-2xl md:text-3xl font-bold text-gray-900">{stats.totalCasos}</p>
+                  )}
                 </div>
               </div>
-              <div className="text-2xl font-semibold text-gray-900 mb-1">{metric.value}</div>
-              <div className="text-sm text-gray-600">{metric.label}</div>
             </CardContent>
           </Card>
-        ))}
-      </div>
-      {/* Recent Workflow Runs (Left - 2/3 width) */}
-      <div className="grid grid-cols-1 gap-8 mt-8">
-        <div className="col-span-2">
+        </motion.div>
+
+        {/* Casos Iniciados */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
           <Card className="border-gray-200">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-lg font-semibold">Casos Recientes</CardTitle>
-                  <CardDescription>Monitorea la ejecución de tus casos y su rendimiento</CardDescription>
+            <CardContent className="p-4 md:p-6">
+              <div className="flex items-center gap-3 md:gap-4">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  {loadingStats ? (
+                    <Loader2 className="w-5 h-5 md:w-6 md:h-6 text-blue-400 animate-spin" />
+                  ) : (
+                    <Clock className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">
-                    <Filter className="w-4 h-4 mr-2" />
-                    Filtrar
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Eye className="w-4 h-4 mr-2" />
-                    Ver Todos
-                  </Button>
+                <div className="min-w-0">
+                  <p className="text-xs md:text-sm text-gray-500 truncate">Iniciados</p>
+                  {loadingStats ? (
+                    <div className="h-8 w-12 bg-gray-200 rounded animate-pulse mt-1"></div>
+                  ) : (
+                    <p className="text-2xl md:text-3xl font-bold text-gray-900">{stats.casosIniciados}</p>
+                  )}
                 </div>
               </div>
-            </CardHeader>
-            <CardContent className="p-0">
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* En Pruebas */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          <Card className="border-gray-200">
+            <CardContent className="p-4 md:p-6">
+              <div className="flex items-center gap-3 md:gap-4">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-yellow-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  {loadingStats ? (
+                    <Loader2 className="w-5 h-5 md:w-6 md:h-6 text-yellow-400 animate-spin" />
+                  ) : (
+                    <Scale className="w-5 h-5 md:w-6 md:h-6 text-yellow-600" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs md:text-sm text-gray-500 truncate">En Pruebas</p>
+                  {loadingStats ? (
+                    <div className="h-8 w-12 bg-gray-200 rounded animate-pulse mt-1"></div>
+                  ) : (
+                    <p className="text-2xl md:text-3xl font-bold text-gray-900">{stats.casosEnPruebas}</p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Clientes */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
+          <Card className="border-gray-200">
+            <CardContent className="p-4 md:p-6">
+              <div className="flex items-center gap-3 md:gap-4">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  {loadingStats ? (
+                    <Loader2 className="w-5 h-5 md:w-6 md:h-6 text-green-400 animate-spin" />
+                  ) : (
+                    <Users className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs md:text-sm text-gray-500 truncate">Clientes</p>
+                  {loadingStats ? (
+                    <div className="h-8 w-12 bg-gray-200 rounded animate-pulse mt-1"></div>
+                  ) : (
+                    <p className="text-2xl md:text-3xl font-bold text-gray-900">{stats.totalClientes}</p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Cases List */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.4 }}
+      >
+        <Card className="border-gray-200">
+          <CardHeader className="pb-4 px-4 md:px-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <CardTitle className="text-base md:text-lg font-semibold">Lista de Casos</CardTitle>
+                <CardDescription className="text-sm">Todos los casos registrados</CardDescription>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => router.push("/casos")}>
+                <Eye className="w-4 h-4 mr-2" />
+                Ver Todos
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            {/* Mobile View - Card List */}
+            <div className="md:hidden">
+              {loadingCases ? (
+                <div className="flex items-center justify-center gap-2 text-gray-500 py-8">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Cargando casos...
+                </div>
+              ) : errorCases ? (
+                <div className="text-center py-8 text-red-500 px-4">{errorCases}</div>
+              ) : casos.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">No hay casos registrados</div>
+              ) : (
+                <div className="divide-y">
+                  {casos.map((caso) => {
+                    const statusInfo = getStatusDisplay(caso.status)
+                    return (
+                      <div
+                        key={caso.id}
+                        className="p-4 hover:bg-gray-50 cursor-pointer active:bg-gray-100"
+                        onClick={() => router.push(`/casos/${caso.id}`)}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-gray-900 truncate">{caso.title}</p>
+                            <p className="text-sm text-gray-500 mt-1">{caso.client_name}</p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <Badge className={statusInfo.color + " text-xs"}>
+                                {statusInfo.label}
+                              </Badge>
+                              <span className="text-xs text-gray-400">{formatDate(caso.created_at)}</span>
+                            </div>
+                          </div>
+                          <Eye className="w-5 h-5 text-gray-400 flex-shrink-0 mt-1" />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Desktop/Tablet View - Table */}
+            <div className="hidden md:block overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-gray-50">
-                    <TableHead className="font-medium text-gray-700">ID Caso</TableHead>
-                    <TableHead className="font-medium text-gray-700">Proceso Legal</TableHead>
+                    <TableHead className="font-medium text-gray-700">ID</TableHead>
+                    <TableHead className="font-medium text-gray-700">Caso</TableHead>
                     <TableHead className="font-medium text-gray-700">Cliente</TableHead>
-                    <TableHead className="font-medium text-gray-700">Iniciado</TableHead>
+                    <TableHead className="font-medium text-gray-700">Área</TableHead>
+                    <TableHead className="font-medium text-gray-700">Fecha Inicio</TableHead>
                     <TableHead className="font-medium text-gray-700">Estado</TableHead>
-                    <TableHead className="font-medium text-gray-700">Observaciones</TableHead>
                     <TableHead className="font-medium text-gray-700 w-12"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {workflowData.map((workflow) => (
-                    <TableRow key={workflow.id} className="hover:bg-gray-50">
-                      <TableCell className="font-mono text-sm">{workflow.id}</TableCell>
-                      <TableCell className="font-medium">{workflow.name}</TableCell>
-                      <TableCell className="text-gray-600">{workflow.client}</TableCell>
-                      <TableCell className="text-gray-600">{workflow.started}</TableCell>
-                      <TableCell>
-                        {workflow.status === "running" && (
-                          <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
-                            En Proceso
-                          </Badge>
-                        )}
-                        {workflow.status === "success" && (
-                          <Badge variant="secondary" className="bg-green-100 text-green-700">
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Completado
-                          </Badge>
-                        )}
-                        {workflow.status === "failed" && (
-                          <Badge variant="secondary" className="bg-red-100 text-red-700">
-                            <XCircle className="w-3 h-3 mr-1" />
-                            Pendiente
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-gray-600 max-w-48 truncate">{workflow.error || "Ninguna"}</TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="w-8 h-8">
-                              <MoreHorizontal className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
-                              <a href={`/casos/${workflow.id}`}>Ver Detalles</a>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>Reabrir Caso</DropdownMenuItem>
-                            <DropdownMenuItem>Ver Documentos</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-red-600">Archivar</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                  {loadingCases ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8">
+                        <div className="flex items-center justify-center gap-2 text-gray-500">
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Cargando casos...
+                        </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : errorCases ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8 text-red-500">
+                        {errorCases}
+                      </TableCell>
+                    </TableRow>
+                  ) : casos.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                        No hay casos registrados
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    casos.map((caso) => {
+                      const statusInfo = getStatusDisplay(caso.status)
+                      return (
+                        <TableRow
+                          key={caso.id}
+                          className="hover:bg-gray-50 cursor-pointer"
+                          onClick={() => router.push(`/casos/${caso.id}`)}
+                        >
+                          <TableCell className="font-mono text-sm text-gray-600">#{caso.id}</TableCell>
+                          <TableCell>
+                            <div className="font-medium text-gray-900">{caso.title}</div>
+                            {caso.file_number && (
+                              <div className="text-sm text-gray-500">Exp: {caso.file_number}</div>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-gray-700">{caso.client_name}</TableCell>
+                          <TableCell>
+                            <span className="capitalize text-gray-600">{caso.practice_area || "-"}</span>
+                          </TableCell>
+                          <TableCell className="text-gray-600">{formatDate(caso.created_at)}</TableCell>
+                          <TableCell>
+                            <Badge className={statusInfo.color}>
+                              {statusInfo.label}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => router.push(`/casos/${caso.id}`)}>
+                                  Ver detalles
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })
+                  )}
                 </TableBody>
               </Table>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Right Sidebar - Commented Out */}
-      </div>
-
-      {/* Bottom Section: Performance Analytics */}
-      <div className="grid grid-cols-1 gap-8 mt-8">
-        <Card className="border-gray-200">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-lg font-semibold">Análisis de Rendimiento</CardTitle>
-                <CardDescription>Tendencias de ejecución de casos y métricas del sistema</CardDescription>
-              </div>
-              <Tabs defaultValue="workflows" value={activeTab} onValueChange={setActiveTab} className="w-auto">
-                <TabsList className="grid w-full grid-cols-3 bg-gray-100/20 p-1 rounded-lg">
-                  <TabsTrigger
-                    value="workflows"
-                    className="relative data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-none"
-                  >
-                    <span className="relative z-10">Casos</span>
-                    {activeTab === "workflows" && (
-                      <motion.div
-                        layoutId="active-tab-dashboard"
-                        className="absolute inset-0 bg-white rounded-md shadow-sm"
-                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                      />
-                    )}
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="sales"
-                    className="relative data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-none"
-                  >
-                    <span className="relative z-10">Ventas</span>
-                    {activeTab === "sales" && (
-                      <motion.div
-                        layoutId="active-tab-dashboard"
-                        className="absolute inset-0 bg-white rounded-md shadow-sm"
-                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                      />
-                    )}
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="views"
-                    className="relative data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-none"
-                  >
-                    <span className="relative z-10">Vistas</span>
-                    {activeTab === "views" && (
-                      <motion.div
-                        layoutId="active-tab-dashboard"
-                        className="absolute inset-0 bg-white rounded-md shadow-sm"
-                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                      />
-                    )}
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
-                  <YAxis stroke="#6b7280" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "white",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "8px",
-                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="workflows"
-                    stroke="#8b5cf6"
-                    fill="#8b5cf6"
-                    fillOpacity={0.1}
-                    strokeWidth={2}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="sales"
-                    stroke="#3b82f6"
-                    fill="#3b82f6"
-                    fillOpacity={0.1}
-                    strokeWidth={2}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
     </div>
   )
 }

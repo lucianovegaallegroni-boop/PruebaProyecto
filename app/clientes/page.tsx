@@ -1,8 +1,7 @@
 "use client"
 
 import Link from "next/link"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
     Search,
     Plus,
@@ -16,6 +15,8 @@ import {
     Phone,
     ChevronLeft,
     ChevronRight,
+    Loader2,
+    AlertCircle,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -57,112 +58,126 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 
-// Tipos
-interface Cliente {
+// Tipos para la API
+interface ClienteAPI {
     id: number
     nombre: string
-    email: string
-    telefono: string
-    cedula: string
-    empresa: string
-    tipo: "Persona Natural" | "Persona Jurídica"
-    estado: "Activo" | "Inactivo"
-    fechaRegistro: string
-    notas: string
+    tipo_cliente: string | null
+    cedula: string | null
+    email: string | null
+    telefono: string | null
+    direccion: string | null
+    ciudad: string | null
+    estado: string | null
+    codigo_postal: string | null
+    pais: string | null
+    persona_contacto: string | null
+    cargo_contacto: string | null
+    notas: string | null
+    activo: boolean
+    created_at: string | null
+    updated_at: string | null
 }
 
-// Datos de ejemplo
-const clientesIniciales: Cliente[] = [
-    {
-        id: 1,
-        nombre: "Juan Pérez García",
-        email: "juan.perez@email.com",
-        telefono: "+52 55 1234 5678",
-        cedula: "V-12345678",
-        empresa: "",
-        tipo: "Persona Natural",
-        estado: "Activo",
-        fechaRegistro: "15 Ene 2025",
-        notas: "Cliente preferencial, requiere atención prioritaria",
-    },
-    {
-        id: 2,
-        nombre: "María González López",
-        email: "maria.gonzalez@techcorp.com",
-        telefono: "+52 55 8765 4321",
-        cedula: "J-87654321",
-        empresa: "TechCorp S.A.",
-        tipo: "Persona Jurídica",
-        estado: "Activo",
-        fechaRegistro: "20 Ene 2025",
-        notas: "Contrato anual de servicios legales",
-    },
-    {
-        id: 3,
-        nombre: "Carlos Ramírez",
-        email: "carlos.ramirez@email.com",
-        telefono: "+52 55 2468 1357",
-        cedula: "V-24681357",
-        empresa: "",
-        tipo: "Persona Natural",
-        estado: "Inactivo",
-        fechaRegistro: "10 Dic 2024",
-        notas: "Caso cerrado en enero 2025",
-    },
-    {
-        id: 4,
-        nombre: "Ana Martínez Silva",
-        email: "ana.martinez@inmobiliaria.com",
-        telefono: "+52 55 9876 5432",
-        cedula: "J-98765432",
-        empresa: "Inmobiliaria del Centro",
-        tipo: "Persona Jurídica",
-        estado: "Activo",
-        fechaRegistro: "05 Feb 2025",
-        notas: "Especialización en bienes raíces",
-    },
-    {
-        id: 5,
-        nombre: "Roberto Sánchez",
-        email: "roberto.sanchez@email.com",
-        telefono: "+52 55 3691 2580",
-        cedula: "J-36912580",
-        empresa: "Grupo Financiero XYZ",
-        tipo: "Persona Jurídica",
-        estado: "Activo",
-        fechaRegistro: "12 Feb 2025",
-        notas: "Requiere reportes mensuales",
-    },
-]
+// Datos del formulario
+interface FormData {
+    nombre: string
+    tipo_cliente: string
+    cedula: string
+    email: string
+    telefono: string
+    direccion: string
+    ciudad: string
+    estado: string
+    persona_contacto: string
+    cargo_contacto: string
+    notas: string
+    activo: boolean
+}
+
+const initialFormData: FormData = {
+    nombre: "",
+    tipo_cliente: "empresa",
+    cedula: "",
+    email: "",
+    telefono: "",
+    direccion: "",
+    ciudad: "",
+    estado: "",
+    persona_contacto: "",
+    cargo_contacto: "",
+    notas: "",
+    activo: true,
+}
 
 export default function ClientesPage() {
-    const [clientes, setClientes] = useState<Cliente[]>(clientesIniciales)
+    // Estados principales
+    const [clientes, setClientes] = useState<ClienteAPI[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+    const [actionLoading, setActionLoading] = useState(false)
+
+    // Estados de UI
     const [searchQuery, setSearchQuery] = useState("")
     const [filterEstado, setFilterEstado] = useState<string>("todos")
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-    const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null)
+    const [selectedCliente, setSelectedCliente] = useState<ClienteAPI | null>(null)
     const [currentPage, setCurrentPage] = useState(1)
     const itemsPerPage = 10
-    const [formData, setFormData] = useState<Partial<Cliente>>({
-        nombre: "",
-        email: "",
-        telefono: "",
-        cedula: "",
-        empresa: "",
-        tipo: "Persona Natural",
-        estado: "Activo",
-        notas: "",
-    })
+    const [formData, setFormData] = useState<FormData>(initialFormData)
+
+    // Cargar clientes desde la API
+    const fetchClientes = async () => {
+        setLoading(true)
+        setError(null)
+        try {
+            const response = await fetch("/api/clientes")
+            const result = await response.json()
+
+            if (!response.ok) {
+                throw new Error(result.error || "Error al cargar los clientes")
+            }
+
+            setClientes(result.data || [])
+        } catch (err) {
+            console.error("Error fetching clientes:", err)
+            setError(err instanceof Error ? err.message : "Error desconocido")
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    // Cargar al montar
+    useEffect(() => {
+        fetchClientes()
+    }, [])
+
+    // Formatear fecha
+    const formatDate = (dateString: string | null) => {
+        if (!dateString) return "Sin fecha"
+        // Agregar T12:00:00 si es solo fecha para evitar problemas de timezone
+        const date = dateString.includes("T")
+            ? new Date(dateString)
+            : new Date(dateString + "T12:00:00")
+        return date.toLocaleDateString("es-MX", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        })
+    }
 
     // Filtrar clientes
     const clientesFiltrados = clientes.filter((cliente) => {
         const matchSearch =
             cliente.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            cliente.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            cliente.empresa.toLowerCase().includes(searchQuery.toLowerCase())
-        const matchEstado = filterEstado === "todos" || cliente.estado === filterEstado
+            (cliente.email?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
+            (cliente.persona_contacto?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
+        const matchEstado =
+            filterEstado === "todos" ||
+            (filterEstado === "Activo" && cliente.activo) ||
+            (filterEstado === "Inactivo" && !cliente.activo)
         return matchSearch && matchEstado
     })
 
@@ -174,74 +189,150 @@ export default function ClientesPage() {
 
     // Abrir modal de agregar
     const handleOpenAddDialog = () => {
-        setFormData({
-            nombre: "",
-            email: "",
-            telefono: "",
-            cedula: "",
-            empresa: "",
-            tipo: "Persona Natural",
-            estado: "Activo",
-            notas: "",
-        })
+        setFormData(initialFormData)
         setIsAddDialogOpen(true)
     }
 
     // Abrir modal de editar
-    const handleOpenEditDialog = (cliente: Cliente) => {
+    const handleOpenEditDialog = (cliente: ClienteAPI) => {
         setSelectedCliente(cliente)
-        setFormData(cliente)
+        setFormData({
+            nombre: cliente.nombre,
+            tipo_cliente: cliente.tipo_cliente || "empresa",
+            cedula: cliente.cedula || "",
+            email: cliente.email || "",
+            telefono: cliente.telefono || "",
+            direccion: cliente.direccion || "",
+            ciudad: cliente.ciudad || "",
+            estado: cliente.estado || "",
+            persona_contacto: cliente.persona_contacto || "",
+            cargo_contacto: cliente.cargo_contacto || "",
+            notas: cliente.notas || "",
+            activo: cliente.activo,
+        })
         setIsEditDialogOpen(true)
     }
 
     // Abrir modal de eliminar
-    const handleOpenDeleteDialog = (cliente: Cliente) => {
+    const handleOpenDeleteDialog = (cliente: ClienteAPI) => {
         setSelectedCliente(cliente)
         setIsDeleteDialogOpen(true)
     }
 
-    // Agregar cliente
-    const handleAddCliente = () => {
-        const nuevoCliente: Cliente = {
-            id: Math.max(...clientes.map((c) => c.id)) + 1,
-            nombre: formData.nombre || "",
-            email: formData.email || "",
-            telefono: formData.telefono || "",
-            cedula: formData.cedula || "",
-            empresa: formData.empresa || "",
-            tipo: formData.tipo || "Persona Natural",
-            estado: "Activo",
-            fechaRegistro: new Date().toLocaleDateString("es-ES", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-            }),
-            notas: formData.notas || "",
+    // Agregar cliente - API
+    const handleAddCliente = async () => {
+        if (!formData.nombre) {
+            alert("El nombre es obligatorio")
+            return
         }
-        setClientes([...clientes, nuevoCliente])
-        setIsAddDialogOpen(false)
+
+        setActionLoading(true)
+        try {
+            const response = await fetch("/api/clientes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                throw new Error(result.error || "Error al crear el cliente")
+            }
+
+            await fetchClientes()
+            setIsAddDialogOpen(false)
+            setFormData(initialFormData)
+        } catch (err) {
+            console.error("Error creating cliente:", err)
+            alert(err instanceof Error ? err.message : "Error al crear el cliente")
+        } finally {
+            setActionLoading(false)
+        }
     }
 
-    // Editar cliente
-    const handleEditCliente = () => {
-        if (selectedCliente) {
-            setClientes(
-                clientes.map((c) =>
-                    c.id === selectedCliente.id ? { ...c, ...formData } : c
-                )
-            )
+    // Editar cliente - API
+    const handleEditCliente = async () => {
+        if (!selectedCliente) return
+
+        setActionLoading(true)
+        try {
+            const response = await fetch(`/api/clientes/${selectedCliente.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                throw new Error(result.error || "Error al actualizar el cliente")
+            }
+
+            await fetchClientes()
             setIsEditDialogOpen(false)
             setSelectedCliente(null)
+        } catch (err) {
+            console.error("Error updating cliente:", err)
+            alert(err instanceof Error ? err.message : "Error al actualizar el cliente")
+        } finally {
+            setActionLoading(false)
         }
     }
 
-    // Eliminar cliente
-    const handleDeleteCliente = () => {
-        if (selectedCliente) {
-            setClientes(clientes.filter((c) => c.id !== selectedCliente.id))
+    // Eliminar cliente - API
+    const handleDeleteCliente = async () => {
+        if (!selectedCliente) return
+
+        setActionLoading(true)
+        try {
+            const response = await fetch(`/api/clientes/${selectedCliente.id}`, {
+                method: "DELETE",
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                throw new Error(result.error || "Error al eliminar el cliente")
+            }
+
+            await fetchClientes()
             setIsDeleteDialogOpen(false)
             setSelectedCliente(null)
+        } catch (err) {
+            console.error("Error deleting cliente:", err)
+            alert(err instanceof Error ? err.message : "Error al eliminar el cliente")
+        } finally {
+            setActionLoading(false)
         }
+    }
+
+    // Vista de carga
+    if (loading) {
+        return (
+            <div className="p-8 flex items-center justify-center min-h-[60vh]">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+                    <p className="text-gray-500">Cargando clientes...</p>
+                </div>
+            </div>
+        )
+    }
+
+    // Vista de error
+    if (error) {
+        return (
+            <div className="p-8 flex items-center justify-center min-h-[60vh]">
+                <div className="flex flex-col items-center gap-4 text-center">
+                    <AlertCircle className="w-12 h-12 text-red-500" />
+                    <h2 className="text-xl font-semibold text-gray-900">Error al cargar clientes</h2>
+                    <p className="text-gray-500">{error}</p>
+                    <Button variant="outline" onClick={fetchClientes}>
+                        Reintentar
+                    </Button>
+                </div>
+            </div>
+        )
     }
 
     return (
@@ -296,11 +387,11 @@ export default function ClientesPage() {
                         <div className="flex items-center gap-6 text-sm text-gray-600">
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                <span>{clientes.filter((c) => c.estado === "Activo").length} Activos</span>
+                                <span>{clientes.filter((c) => c.activo).length} Activos</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                                <span>{clientes.filter((c) => c.estado === "Inactivo").length} Inactivos</span>
+                                <span>{clientes.filter((c) => !c.activo).length} Inactivos</span>
                             </div>
                         </div>
                     </div>
@@ -320,85 +411,101 @@ export default function ClientesPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {clientesPaginados.map((cliente) => (
-                                        <TableRow key={cliente.id} className="hover:bg-gray-50">
-                                            <TableCell>
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                                                        {cliente.tipo === "Persona Jurídica" ? (
-                                                            <Building2 className="w-5 h-5 text-purple-600" />
-                                                        ) : (
-                                                            <User className="w-5 h-5 text-purple-600" />
-                                                        )}
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-medium text-gray-900">{cliente.nombre}</div>
-                                                        <div className="text-sm text-gray-600">{cliente.cedula}</div>
-                                                        {cliente.tipo === "Persona Jurídica" && cliente.empresa && (
-                                                            <div className="text-sm text-gray-500 italic">{cliente.empresa}</div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="space-y-1">
-                                                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                        <Mail className="w-3 h-3" />
-                                                        {cliente.email}
-                                                    </div>
-                                                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                        <Phone className="w-3 h-3" />
-                                                        {cliente.telefono}
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                                                    {cliente.tipo}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge
-                                                    variant="secondary"
-                                                    className={
-                                                        cliente.estado === "Activo"
-                                                            ? "bg-green-100 text-green-700"
-                                                            : "bg-gray-100 text-gray-700"
-                                                    }
-                                                >
-                                                    {cliente.estado}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-gray-600">{cliente.fechaRegistro}</TableCell>
-                                            <TableCell>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon" className="w-8 h-8">
-                                                            <MoreHorizontal className="w-4 h-4" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuItem onClick={() => handleOpenEditDialog(cliente)}>
-                                                            <Edit className="w-4 h-4 mr-2" />
-                                                            Editar
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem asChild>
-                                                            <Link href={`/clientes/${cliente.id}`}>Ver Perfil</Link>
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem>Ver Casos</DropdownMenuItem>
-                                                        <DropdownMenuSeparator />
-                                                        <DropdownMenuItem
-                                                            className="text-red-600"
-                                                            onClick={() => handleOpenDeleteDialog(cliente)}
-                                                        >
-                                                            <Trash2 className="w-4 h-4 mr-2" />
-                                                            Eliminar
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
+                                    {clientesPaginados.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                                                {searchQuery || filterEstado !== "todos"
+                                                    ? "No se encontraron clientes con esos filtros"
+                                                    : "No hay clientes registrados. ¡Agrega tu primer cliente!"}
                                             </TableCell>
                                         </TableRow>
-                                    ))}
+                                    ) : (
+                                        clientesPaginados.map((cliente) => (
+                                            <TableRow key={cliente.id} className="hover:bg-gray-50">
+                                                <TableCell>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                                            {cliente.tipo_cliente === "empresa" ? (
+                                                                <Building2 className="w-5 h-5 text-purple-600" />
+                                                            ) : (
+                                                                <User className="w-5 h-5 text-purple-600" />
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            <div className="font-medium text-gray-900">{cliente.nombre}</div>
+                                                            {cliente.cedula && (
+                                                                <div className="text-sm text-gray-600">{cliente.cedula}</div>
+                                                            )}
+                                                            {cliente.persona_contacto && (
+                                                                <div className="text-sm text-gray-500 italic">{cliente.persona_contacto}</div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="space-y-1">
+                                                        {cliente.email && (
+                                                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                                <Mail className="w-3 h-3" />
+                                                                {cliente.email}
+                                                            </div>
+                                                        )}
+                                                        {cliente.telefono && (
+                                                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                                <Phone className="w-3 h-3" />
+                                                                {cliente.telefono}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant="secondary" className="bg-blue-100 text-blue-700 capitalize">
+                                                        {cliente.tipo_cliente === "empresa" ? "Empresa" : "Persona"}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge
+                                                        variant="secondary"
+                                                        className={
+                                                            cliente.activo
+                                                                ? "bg-green-100 text-green-700"
+                                                                : "bg-gray-100 text-gray-700"
+                                                        }
+                                                    >
+                                                        {cliente.activo ? "Activo" : "Inactivo"}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-gray-600">{formatDate(cliente.created_at)}</TableCell>
+                                                <TableCell>
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button variant="ghost" size="icon" className="w-8 h-8">
+                                                                <MoreHorizontal className="w-4 h-4" />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            <DropdownMenuItem onClick={() => handleOpenEditDialog(cliente)}>
+                                                                <Edit className="w-4 h-4 mr-2" />
+                                                                Editar
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem asChild>
+                                                                <Link href={`/clientes/${cliente.id}`}>Ver Perfil</Link>
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem>Ver Casos</DropdownMenuItem>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuItem
+                                                                className="text-red-600"
+                                                                onClick={() => handleOpenDeleteDialog(cliente)}
+                                                            >
+                                                                <Trash2 className="w-4 h-4 mr-2" />
+                                                                Eliminar
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
                                 </TableBody>
                             </Table>
 
@@ -458,37 +565,55 @@ export default function ClientesPage() {
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="nombre">Nombre Completo *</Label>
+                                <Label htmlFor="nombre">Nombre / Empresa *</Label>
                                 <Input
                                     id="nombre"
                                     value={formData.nombre}
                                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                                    placeholder="Ej: Juan Pérez García"
+                                    placeholder="Ej: TechCorp S.A."
                                 />
                             </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="tipo_cliente">Tipo de Cliente *</Label>
+                                <Select
+                                    value={formData.tipo_cliente}
+                                    onValueChange={(value) => setFormData({ ...formData, tipo_cliente: value })}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="empresa">Empresa</SelectItem>
+                                        <SelectItem value="persona">Persona Física</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="cedula">Cédula *</Label>
                                 <Input
                                     id="cedula"
                                     value={formData.cedula}
                                     onChange={(e) => setFormData({ ...formData, cedula: e.target.value })}
-                                    placeholder="V-12345678 o J-12345678"
+                                    placeholder="1234567890"
+                                    required
                                 />
                             </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="email">Email *</Label>
+                                <Label htmlFor="email">Email</Label>
                                 <Input
                                     id="email"
                                     type="email"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    placeholder="ejemplo@email.com"
+                                    placeholder="contacto@empresa.com"
                                 />
                             </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="telefono">Teléfono *</Label>
+                                <Label htmlFor="telefono">Teléfono</Label>
                                 <Input
                                     id="telefono"
                                     value={formData.telefono}
@@ -496,36 +621,44 @@ export default function ClientesPage() {
                                     placeholder="+52 55 1234 5678"
                                 />
                             </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="persona_contacto">Persona de Contacto</Label>
+                                <Input
+                                    id="persona_contacto"
+                                    value={formData.persona_contacto}
+                                    onChange={(e) => setFormData({ ...formData, persona_contacto: e.target.value })}
+                                    placeholder="Juan Pérez"
+                                />
+                            </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="tipo">Tipo de Cliente *</Label>
-                                <Select
-                                    value={formData.tipo}
-                                    onValueChange={(value: "Persona Natural" | "Persona Jurídica") =>
-                                        setFormData({ ...formData, tipo: value })
-                                    }
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Persona Natural">Persona Natural</SelectItem>
-                                        <SelectItem value="Persona Jurídica">Persona Jurídica</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <Label htmlFor="ciudad">Ciudad</Label>
+                                <Input
+                                    id="ciudad"
+                                    value={formData.ciudad}
+                                    onChange={(e) => setFormData({ ...formData, ciudad: e.target.value })}
+                                    placeholder="Ciudad de México"
+                                />
                             </div>
-                            {formData.tipo === "Persona Jurídica" && (
-                                <div className="space-y-2">
-                                    <Label htmlFor="empresa">Empresa/Organización *</Label>
-                                    <Input
-                                        id="empresa"
-                                        value={formData.empresa}
-                                        onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
-                                        placeholder="Nombre de la empresa"
-                                    />
-                                </div>
-                            )}
+                            <div className="space-y-2">
+                                <Label htmlFor="estado">Estado</Label>
+                                <Input
+                                    id="estado"
+                                    value={formData.estado}
+                                    onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
+                                    placeholder="CDMX"
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="direccion">Dirección</Label>
+                            <Input
+                                id="direccion"
+                                value={formData.direccion}
+                                onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
+                                placeholder="Av. Reforma 500, Col. Centro"
+                            />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="notas">Notas</Label>
@@ -539,11 +672,18 @@ export default function ClientesPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                        <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} disabled={actionLoading}>
                             Cancelar
                         </Button>
-                        <Button className="bg-purple-600 hover:bg-purple-700" onClick={handleAddCliente}>
-                            Agregar Cliente
+                        <Button className="bg-purple-600 hover:bg-purple-700" onClick={handleAddCliente} disabled={actionLoading}>
+                            {actionLoading ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Creando...
+                                </>
+                            ) : (
+                                "Agregar Cliente"
+                            )}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -559,7 +699,7 @@ export default function ClientesPage() {
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="edit-nombre">Nombre Completo *</Label>
+                                <Label htmlFor="edit-nombre">Nombre / Empresa *</Label>
                                 <Input
                                     id="edit-nombre"
                                     value={formData.nombre}
@@ -567,17 +707,32 @@ export default function ClientesPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="edit-cedula">Cédula *</Label>
+                                <Label htmlFor="edit-tipo_cliente">Tipo de Cliente *</Label>
+                                <Select
+                                    value={formData.tipo_cliente}
+                                    onValueChange={(value) => setFormData({ ...formData, tipo_cliente: value })}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="empresa">Empresa</SelectItem>
+                                        <SelectItem value="persona">Persona Física</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="edit-cedula">Cédula</Label>
                                 <Input
                                     id="edit-cedula"
                                     value={formData.cedula}
                                     onChange={(e) => setFormData({ ...formData, cedula: e.target.value })}
                                 />
                             </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="edit-email">Email *</Label>
+                                <Label htmlFor="edit-email">Email</Label>
                                 <Input
                                     id="edit-email"
                                     type="email"
@@ -585,59 +740,64 @@ export default function ClientesPage() {
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 />
                             </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="edit-telefono">Teléfono *</Label>
+                                <Label htmlFor="edit-telefono">Teléfono</Label>
                                 <Input
                                     id="edit-telefono"
                                     value={formData.telefono}
                                     onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
                                 />
                             </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="edit-tipo">Tipo de Cliente *</Label>
-                                <Select
-                                    value={formData.tipo}
-                                    onValueChange={(value: "Persona Natural" | "Persona Jurídica") =>
-                                        setFormData({ ...formData, tipo: value })
-                                    }
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Persona Natural">Persona Natural</SelectItem>
-                                        <SelectItem value="Persona Jurídica">Persona Jurídica</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <Label htmlFor="edit-persona_contacto">Persona de Contacto</Label>
+                                <Input
+                                    id="edit-persona_contacto"
+                                    value={formData.persona_contacto}
+                                    onChange={(e) => setFormData({ ...formData, persona_contacto: e.target.value })}
+                                />
                             </div>
-                            {formData.tipo === "Persona Jurídica" && (
-                                <div className="space-y-2">
-                                    <Label htmlFor="edit-empresa">Empresa/Organización *</Label>
-                                    <Input
-                                        id="edit-empresa"
-                                        value={formData.empresa}
-                                        onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
-                                    />
-                                </div>
-                            )}
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="edit-estado">Estado *</Label>
-                                <Select
+                                <Label htmlFor="edit-ciudad">Ciudad</Label>
+                                <Input
+                                    id="edit-ciudad"
+                                    value={formData.ciudad}
+                                    onChange={(e) => setFormData({ ...formData, ciudad: e.target.value })}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="edit-estado">Estado</Label>
+                                <Input
+                                    id="edit-estado"
                                     value={formData.estado}
-                                    onValueChange={(value: "Activo" | "Inactivo") =>
-                                        setFormData({ ...formData, estado: value })
-                                    }
+                                    onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="edit-direccion">Dirección</Label>
+                            <Input
+                                id="edit-direccion"
+                                value={formData.direccion}
+                                onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="edit-activo">Estado del Cliente</Label>
+                                <Select
+                                    value={formData.activo ? "true" : "false"}
+                                    onValueChange={(value) => setFormData({ ...formData, activo: value === "true" })}
                                 >
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="Activo">Activo</SelectItem>
-                                        <SelectItem value="Inactivo">Inactivo</SelectItem>
+                                        <SelectItem value="true">Activo</SelectItem>
+                                        <SelectItem value="false">Inactivo</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -653,11 +813,18 @@ export default function ClientesPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                        <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} disabled={actionLoading}>
                             Cancelar
                         </Button>
-                        <Button className="bg-purple-600 hover:bg-purple-700" onClick={handleEditCliente}>
-                            Guardar Cambios
+                        <Button className="bg-purple-600 hover:bg-purple-700" onClick={handleEditCliente} disabled={actionLoading}>
+                            {actionLoading ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Guardando...
+                                </>
+                            ) : (
+                                "Guardar Cambios"
+                            )}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -674,12 +841,20 @@ export default function ClientesPage() {
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogCancel disabled={actionLoading}>Cancelar</AlertDialogCancel>
                         <AlertDialogAction
                             className="bg-red-600 hover:bg-red-700"
                             onClick={handleDeleteCliente}
+                            disabled={actionLoading}
                         >
-                            Eliminar
+                            {actionLoading ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Eliminando...
+                                </>
+                            ) : (
+                                "Eliminar"
+                            )}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

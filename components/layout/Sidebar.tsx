@@ -6,12 +6,10 @@ import {
     Search,
     ArrowRight,
     Home,
-    Workflow,
-    BarChart3,
-    Database,
     Users,
     Settings,
     UserCircle,
+    CheckSquare,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -19,10 +17,8 @@ import { cn } from "@/lib/utils"
 
 const sidebarItems = [
     { href: "/", label: "Casos", icon: Home },
-    { href: "/workflows", label: "Trabajos", icon: Workflow },
+    { href: "/todos", label: "Tareas", icon: CheckSquare },
     { href: "/clientes", label: "Clientes", icon: UserCircle },
-    { href: "/analytics", label: "Análisis", icon: BarChart3 },
-    { href: "/templates", label: "Plantillas", icon: Database },
     { href: "/equipo", label: "Equipo", icon: Users },
     { href: "/settings", label: "Configuración", icon: Settings },
 ]
@@ -31,7 +27,7 @@ export function Sidebar() {
     const pathname = usePathname()
 
     return (
-        <aside className="w-60 border-r border-gray-200 bg-white h-[calc(100vh-4rem)] overflow-y-auto sticky top-16">
+        <aside className="hidden md:block w-60 border-r border-gray-200 bg-white h-[calc(100vh-4rem)] overflow-y-auto sticky top-16">
             <div className="p-4">
                 <div className="relative mb-6">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
